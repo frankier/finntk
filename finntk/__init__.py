@@ -1,1 +1,1 @@
-from finntk import *
+from .finntk import *
