@@ -69,6 +69,15 @@ def labelsegment_to_subword_tokens(labelsegmented):
     return tokens_to_subword_tokens(labelsegment_to_tokens(labelsegmented))
 
 
+def get_token_positions(tokenised, text):
+    starts = []
+    start = 0
+    for token in tokenised:
+        start = text.index(token['surf'], start)
+        starts.append(start)
+    return starts
+
+
 _omorfi = None
 
 
