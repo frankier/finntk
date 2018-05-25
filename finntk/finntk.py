@@ -26,6 +26,11 @@ def chunk_subwords(it):
 
 
 def analysis_to_subword_dicts(ana):
+    """
+    Returns a list of list of dicts. Each list element is an analysis. For each
+    analysis, there is a list of subwords. Each dict contains an Omorfi
+    analysis
+    """
     return map(pairs_to_dict, chunk_subwords(analysis_to_pairs(ana)))
 
 
@@ -70,6 +75,10 @@ def labelsegment_to_subword_tokens(labelsegmented):
 
 
 def get_token_positions(tokenised, text):
+    """
+    Returns the start positions of a series of tokens produced by
+    Omorfi.tokenise(...)
+    """
     starts = []
     start = 0
     for token in tokenised:
@@ -82,6 +91,10 @@ _omorfi = None
 
 
 def get_omorfi():
+    """
+    Gets an Omorfi instance with everything possible enabled. Reuses the
+    existing instance if already called once.
+    """
     global _omorfi
     if _omorfi is None:
         _omorfi = Omorfi()
