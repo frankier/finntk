@@ -1,5 +1,6 @@
 # FinnTK
 
-A small amount of wrapper code I end up rewriting every time I write some code
-to work with Finnish language. This project is according to my personal
-preferences but might be helpful to others for exploratory coding.
+Some simple high level tools for processing Finnish text.
+
+This project is according to my personal preferences but might be
+helpful to others, particularly for exploratory coding. For larger projects you may prefer to use [OMorFi](https://github.com/flammie/omorfi) directly.
