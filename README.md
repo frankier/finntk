@@ -5,6 +5,14 @@ Some simple high level tools for processing Finnish text.
 This project is according to my personal preferences but might be
 helpful to others, particularly for exploratory coding. For larger projects you may prefer to use [OMorFi](https://github.com/flammie/omorfi) directly.
 
+## Installation ##
+
+This project assumes you've installed HFST and OMorFi system-wide, like so:
+
+  $ PIP_IGNORE_INSTALLED=1 pipenv install --site-packages finntk
+
+Part of the reason for this is because [HFST is not currently pip installable](https://github.com/hfst/hfst/issues/375).
+
 ## Development ##
 
 ### Release process ###
