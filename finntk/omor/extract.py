@@ -23,23 +23,41 @@ def _extract_lemmas(word_form, get_slices):
 
 
 def extract_lemmas(word_form):
+    """
+    Extract lemmas specifically mentioned by OMorFi.
+    """
     return _extract_lemmas(
         word_form, lambda analysis_dicts: [[d] for d in analysis_dicts]
     )
 
 
 def extract_lemmas_combs(word_form):
+    """
+    Works like `extract_lemmas`, but also tries to combine adjacent
+    subwords to make lemmas which may be out of volcaburary for
+    OMorFi.
+
+    Note that this will over generate (by design). For example:
+    voileipäkakku will generate voi, voileipä and voileipäkakku  as
+    desired, but will also spuriously generate leipäkakku.
+    """
     return _extract_lemmas(word_form, contig_slices)
 
 
 def extract_lemmas_recurs(word_form):
+    """
+    Works like `extract_lemmas`, but also tries to expand each
+    lemma into more lemmas. This helps in some cases (but can
+    overgenerate even more). For example, it will mean that
+    synnyinkaupunkini will generate synty, kaupunki,
+    synnyinkaupunki, synnyin and syntyä.
+    """
     expand_queue = [word_form]
     res = set()
     while len(expand_queue) > 0:
         word_form = expand_queue.pop()
         new_lemmas = extract_lemmas_combs(word_form)
         novel_lemmas = new_lemmas - res
-        print("novel_lemmas", novel_lemmas)
         expand_queue.extend(novel_lemmas)
         for lemma in novel_lemmas:
             res.add(lemma)
