@@ -1,11 +1,11 @@
 import re
 from more_itertools import split_at
 
-LABELSEGMENT_RE = r'''
+LABELSEGMENT_RE = r"""
     \{ (?P<seg> [^\}]* ) \} |
     \[ (?P<tag> [^\]]* ) \] |
     (?P<surf> [^\[\{]+ )
-'''
+"""
 
 _labelsegment_lex = None
 
@@ -26,15 +26,15 @@ def labelsegment_to_tokens(labelsegmented):
 
 
 def tokens_to_subword_tokens(it):
+
     def is_cmp_bound(kv):
-        return (kv[0] == 'seg' and
-                kv[1] == 'wB')
+        return (kv[0] == "seg" and kv[1] == "wB")
 
     return split_at(it, is_cmp_bound)
 
 
 def tokens_to_surf(it):
-    return "".join(v for (t, v) in it if t == 'surf')
+    return "".join(v for (t, v) in it if t == "surf")
 
 
 def labelsegment_to_subword_tokens(labelsegmented):

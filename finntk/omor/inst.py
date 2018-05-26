@@ -21,5 +21,6 @@ def get_omorfi():
             segment=True,
             labelsegment=True,
             guesser=True,
-            udpipe=True)
+            udpipe=True,
+        )
     return _omorfi

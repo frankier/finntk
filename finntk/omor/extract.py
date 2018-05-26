@@ -15,7 +15,7 @@ def _extract_lemmas(word_form, get_slices):
     analyses = omorfi.analyse(word_form)
     res = set()
     for analysis in analyses:
-        analysis_dicts = analysis_to_subword_dicts(analysis['anal'])
+        analysis_dicts = analysis_to_subword_dicts(analysis["anal"])
         for analysis_slice in get_slices(analysis_dicts):
             for lemma in lemmas_of_subword_dicts(analysis_slice):
                 res.add(lemma)
@@ -24,9 +24,8 @@ def _extract_lemmas(word_form, get_slices):
 
 def extract_lemmas(word_form):
     return _extract_lemmas(
-        word_form,
-        lambda analysis_dicts:
-            [[d] for d in analysis_dicts])
+        word_form, lambda analysis_dicts: [[d] for d in analysis_dicts]
+    )
 
 
 def extract_lemmas_combs(word_form):
@@ -40,7 +39,7 @@ def extract_lemmas_recurs(word_form):
         word_form = expand_queue.pop()
         new_lemmas = extract_lemmas_combs(word_form)
         novel_lemmas = new_lemmas - res
-        print('novel_lemmas', novel_lemmas)
+        print("novel_lemmas", novel_lemmas)
         expand_queue.extend(novel_lemmas)
         for lemma in novel_lemmas:
             res.add(lemma)
