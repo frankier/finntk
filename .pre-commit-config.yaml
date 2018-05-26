@@ -1,0 +1,11 @@
+repos:
+-   repo: https://github.com/ambv/black
+    rev: stable
+    hooks:
+    - id: black
+      args: []
+      python_version: python3.6
+-   repo: git://github.com/pre-commit/pre-commit-hooks
+    rev: master
+    hooks:
+    -   id: flake8
