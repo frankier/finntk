@@ -1,3 +1,6 @@
+"""
+Functions for basic processing of OMorFi analyses.
+"""
 from more_itertools import split_at
 import re
 from itertools import product

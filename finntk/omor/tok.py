@@ -1,3 +1,8 @@
+"""
+Functions for basic processing of OMorFi tokens.
+"""
+
+
 def get_token_positions(tokenised, text):
     """
     Returns the start positions of a series of tokens produced by

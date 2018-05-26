@@ -1,3 +1,6 @@
+"""
+Functions for extracting lemmas from OMorFi analyses.
+"""
 from .inst import get_omorfi
 from .anlys import analysis_to_subword_dicts, lemmas_of_subword_dicts
 

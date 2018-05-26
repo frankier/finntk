@@ -1,3 +1,7 @@
+"""
+Function to get ahold of an OMorFi instance.
+"""
+
 from omorfi.omorfi import Omorfi
 
 _omorfi = None
