@@ -18,7 +18,13 @@ setuptools.setup(
             "pytest_check_links",
             "recommonmark",
         ],
-        "dev": ["pytest", "twine"],
+        "dev": [
+            "pytest",
+            # Markdown descriptions
+            "twine>=1.11.0",
+            "wheel>=0.31.0",
+            "setuptools>=38.6.0",
+        ],
     },
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
