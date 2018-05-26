@@ -9,7 +9,16 @@ setuptools.setup(
     long_description=open("README.md").read(),
     packages=setuptools.find_packages(),
     install_requires=["more_itertools>=4.1.0"],
-    extras_require={"dev": ["pytest"]},
+    extras_require={
+        "docs": [
+            "sphinx_autodoc_typehints",
+            "sphinx>=1.5",
+            "sphinx_rtd_theme",
+            "pytest_check_links",
+            "recommonmark",
+        ],
+        "dev": ["pytest"],
+    },
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Programming Language :: Python",

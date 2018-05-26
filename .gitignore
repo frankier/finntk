@@ -1,0 +1,6 @@
+/docs/_build/
+/docs/_autosummary/
+__pycache__/
+/.pytest_cache/
+/dist/
+/finntk.egg-info/
