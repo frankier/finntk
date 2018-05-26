@@ -13,6 +13,8 @@ This project assumes you've installed HFST and OMorFi system-wide, like so:
 
 Part of the reason for this is because [HFST is not currently pip installable](https://github.com/hfst/hfst/issues/375).
 
+The current known good versions of HFST and OMorFi are in installed with Docker in the `docker` directory.
+
 ## Development ##
 
 ### Release process ###
