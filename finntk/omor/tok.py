@@ -9,3 +9,10 @@ def get_token_positions(tokenised, text):
         start = text.index(token['surf'], start)
         starts.append(start)
     return starts
+
+
+def form_of_tok(token):
+    if isinstance(token, str):
+        return token.lower()
+    else:
+        return token['surf'].lower()
