@@ -24,7 +24,6 @@ RUN pip install hfst
 # Install Omorfi
 COPY install-omorfi.sh /install-omorfi.sh
 RUN ./install-omorfi.sh
-COPY local-packages.pth /usr/lib/python3.6/site-packages
 
 # Install pipenv
 RUN pip install --upgrade pip
