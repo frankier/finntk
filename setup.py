@@ -17,7 +17,7 @@ setuptools.setup(
             "pytest_check_links",
             "recommonmark",
         ],
-        "dev": ["pytest"],
+        "dev": ["pytest", "twine"],
     },
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
