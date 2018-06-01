@@ -49,7 +49,7 @@ extensions = [
 
 autosummary_generate = True
 
-autodoc_mock_imports = ["ahocorasick", "more_itertools"]
+autodoc_mock_imports = ["ahocorasick", "more_itertools", "omorfi"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
