@@ -9,7 +9,7 @@ setuptools.setup(
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
-    install_requires=["more_itertools>=4.1.0"],
+    install_requires=["more_itertools>=4.1.0", "pyahocorasick>=1.1.8"],
     extras_require={
         "docs": [
             "sphinx_autodoc_typehints",
