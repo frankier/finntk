@@ -1,3 +1,6 @@
+"""
+Functions for basic processing of OMorFi segment labelling style analyses.
+"""
 import re
 from more_itertools import split_at
 
@@ -34,8 +37,16 @@ def tokens_to_subword_tokens(it):
 
 
 def tokens_to_surf(it):
+    """
+    Given an iterator of segments as (type, value) tuples, reconstruct the
+    surface string.
+    """
     return "".join(v for (t, v) in it if t == "surf")
 
 
 def labelsegment_to_subword_tokens(labelsegmented):
+    """
+    Returns a iterator of segments specified as (type, value) tuple. Type is
+    one of "seg", "tag" or "surf".
+    """
     return tokens_to_subword_tokens(labelsegment_to_tokens(labelsegmented))
