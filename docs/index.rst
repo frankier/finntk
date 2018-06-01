@@ -21,6 +21,7 @@ finntk
    finntk.omor.inst
    finntk.omor.tok
    finntk.omor.seg
+   finntk.wordnet
 
 
 Indices and tables
