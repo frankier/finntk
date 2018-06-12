@@ -26,6 +26,7 @@ setuptools.setup(
             "twine>=1.11.0",
             "wheel>=0.31.0",
             "setuptools>=38.6.0",
+            "nltk>=3.3",
         ],
     },
     classifiers=[
