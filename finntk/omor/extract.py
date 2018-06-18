@@ -34,6 +34,16 @@ def extract_lemmas(word_form):
     )
 
 
+def extract_lemmas_span(word_form):
+    """
+    Works like `extract_lemmas`, but doesn't extract individual subwords.
+    However, if a word is only recognised by as a compound word by OMorFi it
+    will glue the parts together, lemmatising only the last subword. This means
+    it extracts only lemmas which span the whole word form.
+    """
+    return _extract_lemmas(word_form, lambda analysis_dicts: [analysis_dicts])
+
+
 def extract_lemmas_combs(word_form):
     """
     Works like `extract_lemmas`, but also tries to combine adjacent
@@ -64,4 +74,23 @@ def extract_lemmas_recurs(word_form):
         expand_queue.extend(novel_lemmas)
         for lemma in novel_lemmas:
             res.add(lemma)
+    return res
+
+
+def lemma_intersect(toks1, toks2):
+    """
+    Given two iterables of tokens, return the intersection of their lemmas.
+    This can work as a simple, high recall, method of matching for example, two
+    inflected noun phrases.
+    """
+    if len(toks1) != len(toks2):
+        return
+    res = []
+    for t1, t2 in zip(toks1, toks2):
+        l1 = extract_lemmas_span(t1)
+        l2 = extract_lemmas_span(t2)
+        inter = l1 & l2
+        if len(inter) == 0:
+            return
+        res.append(inter)
     return res
