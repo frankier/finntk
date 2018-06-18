@@ -1,58 +1,47 @@
 from finntk.utils import ResourceMan, LazyCorpusLoader
 from os.path import join as pjoin
-import os
 from nltk.corpus import wordnet
 from nltk.corpus.reader.wordnet import (
     WordNetCorpusReader,
     Synset,
     Lemma,
     VERB_FRAME_STRINGS,
+    ADJ,
     ADJ_SAT,
     WordNetError,
 )
-from urllib.request import urlretrieve
 import logging
-import zipfile
-import shutil
 import re
+from plumbum.cmd import git
 
 logger = logging.getLogger(__name__)
+
+
+# This lemma is broken in data.noun
+LEMMA_NAME_FIXES = {"moderniusAdditional_synonym": "modernius"}
+
+# These lemmas occur in differently upper/lower case wise in transls and data.POS
+IGNORE_CASE_LEMMAS = {"ci", "otc", "rh-negatiivinen", "rh-positiivinen"}
 
 
 class FinnWordNetResMan(ResourceMan):
     RESOURCE_NAME = "fiwn"
     RELS = ["transls"]
 
-    URL_BASE = (
-        "http://www.ling.helsinki.fi/kieliteknologia/tutkimus/finnwordnet"
-        "/download_files/"
-    )
-    DICT_URL = URL_BASE + "fiwn_dict_fi-2.0.zip"
-    RELS_URL = URL_BASE + "fiwn_rels_fi-2.0.zip"
+    REPO = "https://github.com/frankier/fiwn.git"
 
     def __init__(self):
         super().__init__()
         for name in self.RELS:
-            self._resources[name] = pjoin("rels", "fiwn-{}.tsv".format(name))
+            self._resources[name] = pjoin("data", "rels", "fiwn-{}.tsv".format(name))
+        self._resources["synset_map"] = "synset_map.tsv"
 
     def _get_res_filename(self, res):
-        return self._resources.get(res, pjoin("dict", res))
+        return self._resources.get(res, pjoin("data", "dict", res))
 
-    def _download(self, part, url, dest):
-        logger.info("Downloading FinnWordNet {}".format(part))
-        tmp_fn, headers = urlretrieve(url)
-        assert headers["Content-Type"] == "application/zip"
+    def _bootstrap(self, _res=None):
         data_dir = self._get_data_dir()
-        try:
-            zip = zipfile.ZipFile(tmp_fn, "r")
-            zip.extractall(data_dir)
-        finally:
-            os.remove(tmp_fn)
-        shutil.move(pjoin(data_dir, "fiwn-2.0", part), data_dir)
-
-    def _bootstrap(self, _res):
-        self._download("dict", self.DICT_URL, self._get_data_dir())
-        self._download("rels", self.RELS_URL, self._get_data_dir())
+        git("clone", self.REPO, data_dir)
 
 
 fiwn_resman = FinnWordNetResMan()
@@ -139,7 +128,7 @@ class FinnWordNetReader(WordNetCorpusReader):
                     source_lemma_name = synset._lemmas[source_index]._name
                     lemma_pointers = synset._lemma_pointers
                     tups = lemma_pointers[source_lemma_name, symbol]
-                    tups.add((pos, offset, target_index))
+                    tups.append((pos, offset, target_index))
 
             # read the verb frames
             try:
@@ -199,8 +188,104 @@ class FinnWordNetReader(WordNetCorpusReader):
 
         return synset
 
+    def _load_lemma_pos_offset_map(self):
+        # Copied and modified for FiWN. The only changes are to handle a single
+        # entry: FiWN contains an empty lemma for `taken` as in `taken
+        # ill/drunk`. Thus lines beginning with two spaces as are treated as a
+        # comment instead of ones starting with one space and tokenisation is
+        # done on spaces instead of all whitespace.
+
+        for suffix in self._FILEMAP.values():
+
+            # parse each line of the file (ignoring comment lines)
+            for i, line in enumerate(self.open("index.%s" % suffix)):
+                if line.startswith("  "):
+                    continue
+
+                _iter = iter(line.split(" "))
+
+                def _next_token():
+                    return next(_iter)
+
+                try:
+
+                    # get the lemma and part-of-speech
+                    lemma = _next_token()
+                    pos = _next_token()
+
+                    # get the number of synsets for this lemma
+                    n_synsets = int(_next_token())
+                    assert n_synsets > 0
+
+                    # get and ignore the pointer symbols for all synsets of
+                    # this lemma
+                    n_pointers = int(_next_token())
+                    [_next_token() for _ in range(n_pointers)]
+
+                    # same as number of synsets
+                    n_senses = int(_next_token())
+                    assert n_synsets == n_senses
+
+                    # get and ignore number of senses ranked according to
+                    # frequency
+                    _next_token()
+
+                    # get synset offsets
+                    synset_offsets = [int(_next_token()) for _ in range(n_synsets)]
+
+                # raise more informative error with file name and line number
+                except (AssertionError, ValueError) as e:
+                    tup = ("index.%s" % suffix), (i + 1), e
+                    raise WordNetError("file %s, line %i: %s" % tup)
+
+                # map lemmas and parts of speech to synsets
+                self._lemma_pos_offset_map[lemma][pos] = synset_offsets
+                if pos == ADJ:
+                    self._lemma_pos_offset_map[lemma][ADJ_SAT] = synset_offsets
+
 
 fiwn = LazyCorpusLoader("fiwn", FinnWordNetReader, None)
+
+
+class EnCountsFinnWordNetReader(FinnWordNetReader):
+
+    def lemma_count(self, lemma):
+        if not hasattr(self, "_counts"):
+            self._counts = calc_fiwn_counts()
+        return self._counts.get(lemma.key(), 0.0)
+
+    def lemmas(self, lemma, pos=None, lang="eng"):
+        lemmas = super().lemmas(lemma, pos, lang)
+        return sorted(lemmas, key=lambda l: -l.count())
+
+
+fiwn_encnt = LazyCorpusLoader("fiwn", EnCountsFinnWordNetReader, None)
+
+
+en_fi_maps = None
+
+
+def get_en_fi_maps():
+
+    def fix_synset_key(synset):
+        synset = synset.split(":", 1)[1]
+        if synset[0] == "s":
+            synset = "a" + synset[1:]
+        return synset
+
+    global en_fi_maps
+    if en_fi_maps is None:
+        synset_map = fiwn_resman.get_res("synset_map")
+        fi2en = {}
+        en2fi = {}
+        for line in open(synset_map):
+            en_synset_key, fi_synset_key = line[:-1].split("\t")
+            en_synset_key = fix_synset_key(en_synset_key)
+            fi_synset_key = fix_synset_key(fi_synset_key)
+            fi2en[fi_synset_key] = en_synset_key
+            en2fi[en_synset_key] = fi_synset_key
+        en_fi_maps = fi2en, en2fi
+    return en_fi_maps
 
 
 def get_transl_iter():
@@ -209,5 +294,63 @@ def get_transl_iter():
         fi_synset, fi_lemma, en_synset, en_lemma, rel, extra = line[:-1].split("\t")
         _, fi_synset = fi_synset.split(":", 1)
         _, en_synset = en_synset.split(":", 1)
-        assert fi_synset == en_synset
-        yield fi_synset, fi_lemma, en_lemma, rel, extra
+        fi_lemma = fi_lemma.split("<", 1)[0]
+        yield fi_synset, fi_lemma, en_synset, en_lemma, rel, extra
+
+
+def surf_to_norm_lemma(surf_lemma):
+    return surf_lemma.replace(" ", "_").replace(",", "\\,").replace("(", "\\(").replace(
+        ")", "\\)"
+    )
+
+
+def synset_surf_to_lemma(synset, surf):
+    lemmas = synset.lemmas()
+    for lemma in lemmas:
+        normed_lemma = surf_to_norm_lemma(surf)
+        if (
+            normed_lemma.lower() in IGNORE_CASE_LEMMAS
+            and normed_lemma.lower() == lemma.name().lower()
+        ):
+            return lemma
+        fixed_lemma_name = LEMMA_NAME_FIXES.get(lemma.name(), lemma.name())
+        if fixed_lemma_name == normed_lemma:
+            return lemma
+
+
+def get_lemma(wn, synset_key, lemma_str):
+    pos = synset_key[0]
+    offset = int(synset_key[1:], 10)
+    synset = wn.synset_from_pos_and_offset(pos, offset)
+    return synset_surf_to_lemma(synset, lemma_str)
+
+
+def calc_fiwn_counts():
+    en2fi = {}
+    for (
+        fi_synset_key, fi_lemma_str, en_synset_key, en_lemma_str, rel, extra
+    ) in get_transl_iter():
+        if rel != "synonym":
+            continue
+
+        fi_lemma = get_lemma(fiwn, fi_synset_key, fi_lemma_str)
+        assert fi_lemma is not None
+
+        en_lemma = get_lemma(wordnet, en_synset_key, en_lemma_str)
+        assert en_lemma is not None
+
+        en2fi.setdefault(en_lemma.key(), []).append(fi_lemma.key())
+    counts = {}
+    for en, fis in en2fi.items():
+        for fi in fis:
+            counts.setdefault(fi, 0.0)
+            try:
+                en_lemma = wordnet.lemma_from_key(en)
+            except WordNetError:
+                # The following lemmas are not in the PWN sense index for some reason:
+                # ['earth%1:17:02::', 'ddc%1:06:01::', 'kb%1:23:01::', 'sun%1:17:02::',
+                # 'moon%1:17:03::', 'earth%1:15:01::', 'ddi%1:06:01::', 'kb%1:23:03::']
+                pass
+            else:
+                counts[fi] += en_lemma.count() / len(fis)
+    return counts

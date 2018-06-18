@@ -10,7 +10,12 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
     install_requires=[
-        "more_itertools>=4.1.0", "pyahocorasick>=1.1.8", "appdirs>=1.4.3"
+        "more_itertools>=4.1.0",
+        "pyahocorasick>=1.1.8",
+        "appdirs>=1.4.3",
+        "plumbum>=1.6.6",
+        "nltk>=3.3",
+        "gensim>=3.4.0",
     ],
     extras_require={
         "docs": [
@@ -26,7 +31,6 @@ setuptools.setup(
             "twine>=1.11.0",
             "wheel>=0.31.0",
             "setuptools>=38.6.0",
-            "nltk>=3.3",
         ],
     },
     classifiers=[
