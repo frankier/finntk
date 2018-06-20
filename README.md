@@ -23,4 +23,6 @@ The current known good versions of HFST and OMorFi are in installed with Docker 
 
 2. Make a git tag of this commit with `git tag v$VERSION`
 
-3. Upload to PyPI with `python3 setup.py sdist bdist_wheel` and `twine upload dist/*`
+3. Push release to GitHub with `git push --tags`
+
+4. Upload to PyPI with `python3 setup.py sdist bdist_wheel` and `twine upload dist/*`
