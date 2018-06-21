@@ -13,7 +13,8 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 # import os
-# import sys
+import sys
+from unittest.mock import Mock
 
 # sys.path.insert(0, os.path.abspath(".."))
 # sys.path.insert(0, os.path.abspath("../finntk"))
@@ -50,6 +51,9 @@ extensions = [
 autosummary_generate = True
 
 autodoc_mock_imports = ["libhfst", "hfst", "omorfi"]
+for mod_name in autodoc_mock_imports:
+    sys.modules[mod_name] = Mock()
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
