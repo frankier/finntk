@@ -14,7 +14,7 @@ def get_omorfi():
     """
     global _omorfi
     if _omorfi is None:
-        _omorfi = Omorfi()
+        _omorfi = Omorfi(use_describe=True)
         _omorfi.load_from_dir(
             analyse=True,
             generate=True,
@@ -26,5 +26,6 @@ def get_omorfi():
             labelsegment=True,
             guesser=True,
             udpipe=True,
+            describe=True,
         )
     return _omorfi
