@@ -33,8 +33,8 @@ class WordVecs(ResourceMan):
             os.remove(tmp_fn)
 
     def _bootstrap(self, _res):
-        self._download("Finnish", self.FI_URL, self._get_res_path("en_vec"))
-        self._download("English", self.EN_URL, self._get_res_path("fi_vec"))
+        self._download("Finnish", self.FI_URL, self._get_res_path("fi_vec"))
+        self._download("English", self.EN_URL, self._get_res_path("en_vec"))
 
     def get_en(self):
         if self._en is None:
