@@ -1,15 +1,18 @@
+import gzip
 from scipy.spatial.distance import cosine
 from nltk.tokenize import word_tokenize
+from nltk.corpus import wordnet
 from gensim.models import KeyedVectors
 import logging
 from urllib.request import urlretrieve
 import os
 from finntk.utils import ResourceMan
+from shutil import copyfileobj
 
 logger = logging.getLogger(__name__)
 
 
-class WordVecs(ResourceMan):
+class FasttextWordVecs(ResourceMan):
     RESOURCE_NAME = "fasttext-multilingual"
 
     FI_URL = "https://s3.amazonaws.com/arrival/embeddings/wiki.multi.fi.vec"
@@ -53,7 +56,51 @@ class WordVecs(ResourceMan):
         return self._fi
 
 
-word_vecs = WordVecs()
+class NumberbatchWordVecs(ResourceMan):
+    RESOURCE_NAME = "numberbatch-multilingual"
+
+    URL = (
+        "https://conceptnet.s3.amazonaws.com/downloads/2017/numberbatch"
+        "/numberbatch-17.06.txt.gz"
+    )
+
+    def __init__(self):
+        super().__init__()
+        self._resources["vecs"] = "numberbatch.multi.binvec"
+        self._vecs = None
+
+    def _bootstrap(self, _res):
+        from gensim.test.utils import get_tmpfile
+
+        logger.info("Downloading word vectors")
+        try:
+            gzipped_glove_tmp_fn, _ = urlretrieve(self.URL)
+            glove_tmp_fn = get_tmpfile("glove.txt")
+            copyfileobj(gzip.open(gzipped_glove_tmp_fn), open(glove_tmp_fn, "wb"))
+            logger.info("Converting word vectors")
+            fi = KeyedVectors.load_word2vec_format(glove_tmp_fn)
+            fi.save(self._get_res_path("vecs"))
+        finally:
+            try:
+                os.remove(gzipped_glove_tmp_fn)
+            except OSError:
+                pass
+            try:
+                os.remove(glove_tmp_fn)
+            except OSError:
+                pass
+
+    def get_vecs(self):
+        if self._vecs is None:
+            vec_path = self.get_res("vecs")
+            logger.info("Loading word vectors")
+            self._vecs = KeyedVectors.load(vec_path, mmap="r")
+            logger.info("Loaded word vectors")
+        return self._vecs
+
+
+fasttext_word_vecs = FasttextWordVecs()
+numberbatch_word_vecs = NumberbatchWordVecs()
 
 
 def avg_vec(space, stream):
@@ -72,26 +119,69 @@ def avg_vec(space, stream):
     return vec_sum / word_count
 
 
-def mk_context_vec(word_forms):
-    fi = word_vecs.get_fi()
+def mk_context_vec_fasttext_fi(word_forms):
+    fi = fasttext_word_vecs.get_fi()
     return avg_vec(fi, word_forms)
 
 
-def get_defn_distance(context_vec, defn):
-    en = word_vecs.get_en()
-    defn_vec = avg_vec(en, word_tokenize(defn))
+def mk_context_vec_conceptnet_fi(lemmas):
+    vecs = numberbatch_word_vecs.get_vecs()
+    return avg_vec(vecs, ("/c/fi/" + lemma for lemma in lemmas))
+
+
+def mk_defn_vec(vecs, proc_tok, lemma, wn_filter=False):
+    return avg_vec(
+        vecs,
+        (
+            proc_tok(tok.lower())
+            for tok in word_tokenize(lemma.synset().definition())
+            if not wn_filter or len(wordnet.lemmas(tok.lower()))
+        ),
+    )
+
+
+def mk_defn_vec_fasttext_en(lemma, wn_filter=False):
+    en = fasttext_word_vecs.get_en()
+    return mk_defn_vec(en, lambda x: x, lemma, wn_filter=wn_filter)
+
+
+def mk_defn_vec_conceptnet_en(lemma, wn_filter=False):
+    vecs = numberbatch_word_vecs.get_vecs()
+    return mk_defn_vec(vecs, lambda x: "/c/en/" + x, lemma, wn_filter=wn_filter)
+
+
+def get_defn_distance(context_vec, defn_vec):
     if defn_vec is None or context_vec is None:
         return 7
     return cosine(defn_vec, context_vec)
 
 
-def disambg(lemmas, context):
-    context_vec = mk_context_vec(context)
+def disambg(lemma_defns, context_vec):
     best_lemma = None
     best_dist = 8
-    for lemma in lemmas:
-        dist = get_defn_distance(context_vec, lemma.synset().definition())
+    for lemma, defn_vec in lemma_defns:
+        dist = get_defn_distance(context_vec, defn_vec)
         if dist < best_dist:
             best_lemma = lemma
             best_dist = dist
     return best_lemma, best_dist
+
+
+def disambg_fasttext(lemmas, context, wn_filter=False):
+    return disambg(
+        (
+            (lemma, mk_defn_vec_fasttext_en(lemma, wn_filter=wn_filter))
+            for lemma in lemmas
+        ),
+        mk_context_vec_fasttext_fi(context),
+    )
+
+
+def disambg_conceptnet(lemmas, context, wn_filter=False):
+    return disambg(
+        (
+            (lemma, mk_defn_vec_conceptnet_en(lemma, wn_filter=wn_filter))
+            for lemma in lemmas
+        ),
+        mk_context_vec_conceptnet_fi(context),
+    )
