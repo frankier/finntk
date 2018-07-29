@@ -2,8 +2,6 @@
 Function to get ahold of an OMorFi instance.
 """
 
-from omorfi.omorfi import Omorfi
-
 _omorfi = None
 
 
@@ -12,6 +10,8 @@ def get_omorfi():
     Gets an Omorfi instance with everything possible enabled. Reuses the
     existing instance if already called once.
     """
+    from omorfi.omorfi import Omorfi
+
     global _omorfi
     if _omorfi is None:
         _omorfi = Omorfi(use_describe=True)
