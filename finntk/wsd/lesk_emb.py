@@ -103,20 +103,27 @@ fasttext_word_vecs = FasttextWordVecs()
 numberbatch_word_vecs = NumberbatchWordVecs()
 
 
-def avg_vec(space, stream):
+def avg_vec_from_vecs(vecs):
     word_count = 0
     vec_sum = 0
-    for word in stream:
-        try:
-            vec = space.get_vector(word)
-        except KeyError:
-            continue
-        else:
-            vec_sum += vec
-            word_count += 1
+    for vec in vecs:
+        vec_sum += vec
+        word_count += 1
     if word_count == 0:
         return None
     return vec_sum / word_count
+
+
+def avg_vec(space, stream):
+
+    def gen():
+        for word in stream:
+            try:
+                yield space.get_vector(word)
+            except KeyError:
+                continue
+
+    return avg_vec_from_vecs(gen())
 
 
 def mk_context_vec_fasttext_fi(word_forms):
