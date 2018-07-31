@@ -249,11 +249,6 @@ fiwn = LazyCorpusLoader("fiwn", FinnWordNetReader, None)
 
 class EnCountsFinnWordNetReader(FinnWordNetReader):
 
-    def lemma_count(self, lemma):
-        if not hasattr(self, "_counts"):
-            self._counts = calc_fiwn_counts()
-        return self._counts.get(lemma.key(), 0.0)
-
     def lemmas(self, lemma, pos=None, lang="eng"):
         lemmas = super().lemmas(lemma, pos, lang)
         return sorted(lemmas, key=lambda l: -l.count())
@@ -286,71 +281,3 @@ def get_en_fi_maps():
             en2fi[en_synset_key] = fi_synset_key
         en_fi_maps = fi2en, en2fi
     return en_fi_maps
-
-
-def get_transl_iter():
-    transls = fiwn_resman.get_res("transls")
-    for line in open(transls):
-        fi_synset, fi_lemma, en_synset, en_lemma, rel, extra = line[:-1].split("\t")
-        _, fi_synset = fi_synset.split(":", 1)
-        _, en_synset = en_synset.split(":", 1)
-        fi_lemma = fi_lemma.split("<", 1)[0]
-        yield fi_synset, fi_lemma, en_synset, en_lemma, rel, extra
-
-
-def surf_to_norm_lemma(surf_lemma):
-    return surf_lemma.replace(" ", "_").replace(",", "\\,").replace("(", "\\(").replace(
-        ")", "\\)"
-    )
-
-
-def synset_surf_to_lemma(synset, surf):
-    lemmas = synset.lemmas()
-    for lemma in lemmas:
-        normed_lemma = surf_to_norm_lemma(surf)
-        if (
-            normed_lemma.lower() in IGNORE_CASE_LEMMAS
-            and normed_lemma.lower() == lemma.name().lower()
-        ):
-            return lemma
-        fixed_lemma_name = LEMMA_NAME_FIXES.get(lemma.name(), lemma.name())
-        if fixed_lemma_name == normed_lemma:
-            return lemma
-
-
-def get_lemma(wn, synset_key, lemma_str):
-    pos = synset_key[0]
-    offset = int(synset_key[1:], 10)
-    synset = wn.synset_from_pos_and_offset(pos, offset)
-    return synset_surf_to_lemma(synset, lemma_str)
-
-
-def calc_fiwn_counts():
-    en2fi = {}
-    for (
-        fi_synset_key, fi_lemma_str, en_synset_key, en_lemma_str, rel, extra
-    ) in get_transl_iter():
-        if rel != "synonym":
-            continue
-
-        fi_lemma = get_lemma(fiwn, fi_synset_key, fi_lemma_str)
-        assert fi_lemma is not None
-
-        en_lemma = get_lemma(wordnet, en_synset_key, en_lemma_str)
-        assert en_lemma is not None
-
-        en2fi.setdefault(en_lemma.key(), []).append(fi_lemma.key())
-    counts = {}
-    for en, fis in en2fi.items():
-        for fi in fis:
-            counts.setdefault(fi, 0.0)
-            try:
-                en_lemma = wordnet.lemma_from_key(en)
-            except WordNetError:
-                # The following lemmas are not in the PWN sense index for some reason:
-                # ['earth%1:17:02::', 'ddc%1:06:01::', 'kb%1:23:01::', 'sun%1:17:02::',
-                # 'moon%1:17:03::', 'earth%1:15:01::', 'ddi%1:06:01::', 'kb%1:23:03::']
-                pass
-            else:
-                counts[fi] += en_lemma.count() / len(fis)
-    return counts
