@@ -1,9 +1,8 @@
 from nltk.util import binary_search_file
 import zipfile
 import logging
-from finntk.utils import ResourceMan
+from finntk.utils import ResourceMan, urlretrieve
 from gensim.models import KeyedVectors
-from urllib.request import urlretrieve
 from shutil import copyfileobj
 import os
 
@@ -28,7 +27,7 @@ class AutoExtendNumberBatchFiWNWordVecs(ResourceMan):
         from gensim.test.utils import get_tmpfile
 
         logger.info("Downloading FiWN ConceptNet word vectors")
-        zipped_tmp_fn, _ = urlretrieve(self.URL)
+        zipped_tmp_fn = urlretrieve(self.URL)
         try:
             tmp_zip = zipfile.ZipFile(zipped_tmp_fn)
             tmp_fn = get_tmpfile("fiwn-conceptnet.txt")

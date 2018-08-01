@@ -1,8 +1,7 @@
 import gzip
 import logging
-from finntk.utils import ResourceMan
+from finntk.utils import ResourceMan, urlretrieve
 from gensim.models import KeyedVectors
-from urllib.request import urlretrieve
 from shutil import copyfileobj
 import os
 
@@ -27,7 +26,7 @@ class NumberbatchWordVecs(ResourceMan):
 
         logger.info("Downloading word vectors")
         try:
-            gzipped_glove_tmp_fn, _ = urlretrieve(self.URL)
+            gzipped_glove_tmp_fn = urlretrieve(self.URL)
             glove_tmp_fn = get_tmpfile("glove.txt")
             copyfileobj(gzip.open(gzipped_glove_tmp_fn), open(glove_tmp_fn, "wb"))
             logger.info("Converting word vectors")

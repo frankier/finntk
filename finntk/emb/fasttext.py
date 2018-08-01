@@ -1,7 +1,6 @@
 import logging
-from finntk.utils import ResourceMan
+from finntk.utils import ResourceMan, urlretrieve
 from gensim.models import KeyedVectors
-from urllib.request import urlretrieve
 import os
 
 logger = logging.getLogger(__name__)
@@ -22,7 +21,7 @@ class FasttextWordVecs(ResourceMan):
 
     def _download(self, lang, url, dest):
         logger.info("Downloading {} word vectors".format(lang))
-        tmp_fn, _ = urlretrieve(url)
+        tmp_fn = urlretrieve(url)
         try:
             logger.info("Converting {} word vectors".format(lang))
             fi = KeyedVectors.load_word2vec_format(tmp_fn)

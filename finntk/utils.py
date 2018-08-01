@@ -110,3 +110,13 @@ class LazyCorpusLoader:
         # '_unload' method may be unattached, so __getattr__ can be called;
         # we shouldn't trigger corpus loading again in this case.
         pass
+
+
+def urlretrieve(url):
+    if os.environ["OVERRIDE_FETCHES"]:
+        return input("Enter path for local copy of {}: ".format(url))
+    else:
+        from urllib.request import urlretrieve
+
+        result, _ = urlretrieve(url)
+        return result
