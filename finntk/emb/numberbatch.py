@@ -1,0 +1,61 @@
+import gzip
+import logging
+from finntk.utils import ResourceMan
+from gensim.models import KeyedVectors
+from urllib.request import urlretrieve
+from shutil import copyfileobj
+import os
+
+logger = logging.getLogger(__name__)
+
+
+class NumberbatchWordVecs(ResourceMan):
+    RESOURCE_NAME = "numberbatch-multilingual"
+
+    URL = (
+        "https://conceptnet.s3.amazonaws.com/downloads/2017/numberbatch"
+        "/numberbatch-17.06.txt.gz"
+    )
+
+    def __init__(self):
+        super().__init__()
+        self._resources["vecs"] = "numberbatch.multi.binvec"
+        self._vecs = None
+
+    def _bootstrap(self, _res):
+        from gensim.test.utils import get_tmpfile
+
+        logger.info("Downloading word vectors")
+        try:
+            gzipped_glove_tmp_fn, _ = urlretrieve(self.URL)
+            glove_tmp_fn = get_tmpfile("glove.txt")
+            copyfileobj(gzip.open(gzipped_glove_tmp_fn), open(glove_tmp_fn, "wb"))
+            logger.info("Converting word vectors")
+            fi = KeyedVectors.load_word2vec_format(glove_tmp_fn)
+            fi.save(self._get_res_path("vecs"))
+        finally:
+            try:
+                os.remove(gzipped_glove_tmp_fn)
+            except OSError:
+                pass
+            try:
+                os.remove(glove_tmp_fn)
+            except OSError:
+                pass
+
+    def get_vecs(self):
+        if self._vecs is None:
+            vec_path = self.get_res("vecs")
+            logger.info("Loading word vectors")
+            self._vecs = KeyedVectors.load(vec_path, mmap="r")
+            logger.info("Loaded word vectors")
+        return self._vecs
+
+
+vecs = NumberbatchWordVecs()
+
+
+def mk_concept_vec(lang, text, *more):
+    from conceptnet5.uri import concept_uri
+
+    return vecs.get_vecs()[concept_uri(lang, text, *more)]
