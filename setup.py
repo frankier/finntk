@@ -17,6 +17,7 @@ setuptools.setup(
         "nltk>=3.3",
         "gensim>=3.4.0",
         "ConceptNet>=5.6.2",
+        "portalocker>=>1.2.1",
     ],
     extras_require={
         "docs": [

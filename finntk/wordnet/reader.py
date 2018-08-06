@@ -1,5 +1,5 @@
 from finntk.utils import ResourceMan, LazyCorpusLoader
-from os.path import join as pjoin
+from os.path import exists, join as pjoin
 from nltk.corpus import wordnet
 from nltk.corpus.reader.wordnet import (
     WordNetCorpusReader,
@@ -13,6 +13,7 @@ from nltk.corpus.reader.wordnet import (
 import logging
 import re
 from plumbum.cmd import git
+import portalocker
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,9 @@ class FinnWordNetResMan(ResourceMan):
 
     def _bootstrap(self, _res=None):
         data_dir = self._get_data_dir()
-        git("clone", self.REPO, data_dir)
+        with portalocker.Lock(pjoin(data_dir, "../fiwn.lock"), timeout=3600):
+            if not exists(data_dir):
+                git("clone", self.REPO, data_dir)
 
 
 fiwn_resman = FinnWordNetResMan()
