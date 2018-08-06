@@ -1,7 +1,9 @@
 from nltk.util import binary_search_file
 import zipfile
 import logging
+from functools import total_ordering
 from finntk.utils import ResourceMan, urlretrieve
+from finntk.wordnet.reader import fiwn
 from gensim.models import KeyedVectors
 from shutil import copyfileobj
 import os
@@ -56,6 +58,36 @@ class AutoExtendNumberBatchFiWNWordVecs(ResourceMan):
 vecs = AutoExtendNumberBatchFiWNWordVecs()
 
 
+@total_ordering
+class AsKey(object):
+
+    def __init__(self, obj, key_func):
+        self.obj = obj
+        self.obj_key = key_func(obj)
+        self.key_func = key_func
+
+    def __lt__(self, other):
+        return self.obj_key < self.key_func(other)
+
+    def __eq__(self, other):
+        return self.obj_key == self.key_func(other)
+
+    def __add__(self, other):
+        return AsKey(self.obj + other.encode("utf-8"), self.key_func)
+
+    def __len__(self):
+        return len(self.obj)
+
+
+POS_ORDER = b"nvar"
+
+
+def synset_map_key(line):
+    key = line.split(b" ", 1)[0]
+    _, off, pos = key.strip().rsplit(b"-", 2)
+    return (POS_ORDER.index(pos), off)
+
+
 class SynsetMapper:
 
     def __init__(self, res_man):
@@ -66,28 +98,41 @@ class SynsetMapper:
     def map_file(self):
         if self._map_file is None:
             synsets_fn = self.res_man.get_res("synsets")
-            self._map_file = open(synsets_fn)
+            self._map_file = open(synsets_fn, "rb")
         return self._map_file
 
     def __call__(self, synset_id):
-        line = binary_search_file(self.map_file, synset_id)
-        bits = line.split(" ", 1)
-        return bits[1] or None
+        full_synset_id = "wn-fi-2.0-" + synset_id
+        line = binary_search_file(
+            self.map_file, AsKey(full_synset_id.encode("utf-8"), synset_map_key)
+        )
+        if line is None:
+            return
+        bits = line.split(b" ", 1)
+        return bits[1].rstrip().decode("utf-8") or None
 
 
 synset_map = SynsetMapper(vecs)
 
 
-def mk_lemma_vec(lemma):
-    from finntk.wordnet.reader import fiwn
-
+def get_lemma_id(lemma):
     synset = lemma.synset()
+    return "{}-wn-fi-2.0-{}".format(lemma.name().lower(), fiwn.ss2of(synset))
+
+
+def mk_lemma_vec(lemma):
     fiwn_space = vecs.get_vecs()
-    lemma_id = "{}-wn-fi-2.0-{}".format(lemma.name(), fiwn.ss2of(synset))
-    return fiwn_space[lemma_id]
+    return fiwn_space[get_lemma_id(lemma)]
+
+
+def mk_lemmas_mat(lemmas):
+    fiwn_space = vecs.get_vecs()
+    return fiwn_space[[get_lemma_id(lemma) for lemma in lemmas]]
 
 
 def mk_synset_vec(synset):
     fiwn_space = vecs.get_vecs()
-    synset_id = "".join((lemma.key() + "," for lemma in synset.lemmas()))
+    synset_id = synset_map(fiwn.ss2of(synset))
+    if synset_id is None:
+        return
     return fiwn_space[synset_id]

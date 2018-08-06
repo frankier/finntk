@@ -29,6 +29,7 @@ setuptools.setup(
         ],
         "dev": [
             "pytest",
+            "hypothesis",
             # Markdown descriptions
             "twine>=1.11.0",
             "wheel>=0.31.0",
