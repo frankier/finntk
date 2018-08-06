@@ -113,7 +113,7 @@ class LazyCorpusLoader:
 
 
 def urlretrieve(url):
-    if os.environ["OVERRIDE_FETCHES"]:
+    if os.environ.get("OVERRIDE_FETCHES"):
         return input("Enter path for local copy of {}: ".format(url))
     else:
         from urllib.request import urlretrieve
