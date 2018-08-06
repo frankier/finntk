@@ -25,20 +25,22 @@ class NumberbatchWordVecs(ResourceMan):
         from gensim.test.utils import get_tmpfile
 
         logger.info("Downloading word vectors")
+        gzipped_glove_tmp_fn = urlretrieve(self.URL)
         try:
-            gzipped_glove_tmp_fn = urlretrieve(self.URL)
             glove_tmp_fn = get_tmpfile("glove.txt")
-            copyfileobj(gzip.open(gzipped_glove_tmp_fn), open(glove_tmp_fn, "wb"))
-            logger.info("Converting word vectors")
-            fi = KeyedVectors.load_word2vec_format(glove_tmp_fn)
-            fi.save(self._get_res_path("vecs"))
+            try:
+                copyfileobj(gzip.open(gzipped_glove_tmp_fn), open(glove_tmp_fn, "wb"))
+                logger.info("Converting word vectors")
+                fi = KeyedVectors.load_word2vec_format(glove_tmp_fn)
+                fi.save(self._get_res_path("vecs"))
+            finally:
+                try:
+                    os.remove(glove_tmp_fn)
+                except OSError:
+                    pass
         finally:
             try:
                 os.remove(gzipped_glove_tmp_fn)
-            except OSError:
-                pass
-            try:
-                os.remove(glove_tmp_fn)
             except OSError:
                 pass
 
