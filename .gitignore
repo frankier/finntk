@@ -4,3 +4,5 @@ __pycache__/
 /.pytest_cache/
 /dist/
 /finntk.egg-info/
+/build/
+/.hypothesis/
