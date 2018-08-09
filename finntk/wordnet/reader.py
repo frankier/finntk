@@ -43,7 +43,7 @@ class FinnWordNetResMan(ResourceMan):
     def _bootstrap(self, _res=None):
         data_dir = self._get_data_dir()
         with portalocker.Lock(pjoin(data_dir, "../fiwn.lock"), timeout=3600):
-            if not exists(data_dir):
+            if not exists(pjoin(data_dir, ".git")):
                 git("clone", self.REPO, data_dir)
 
 
