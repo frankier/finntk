@@ -9,3 +9,4 @@ repos:
     rev: master
     hooks:
     -   id: flake8
+        exclude: finntk/vendor

@@ -15,6 +15,12 @@ Part of the reason for this is because [HFST is not currently pip installable](h
 
 The current known good versions of HFST and OMorFi are in installed with Docker in the `docker` directory.
 
+## License ##
+
+This project is licensed under the Apache v2 license. The code in
+`finntk/vendor` is vendorized from other projects and is licensed under their
+respective licenses.
+
 ## Development ##
 
 ### Release process ###

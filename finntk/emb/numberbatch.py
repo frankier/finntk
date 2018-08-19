@@ -1,6 +1,7 @@
 import gzip
 import logging
 from finntk.utils import ResourceMan, urlretrieve
+from finntk.vendor.conceptnet5.uri import concept_uri
 from gensim.models import KeyedVectors
 from shutil import copyfileobj
 import os
@@ -57,6 +58,4 @@ vecs = NumberbatchWordVecs()
 
 
 def mk_concept_vec(lang, text, *more):
-    from conceptnet5.uri import concept_uri
-
     return vecs.get_vecs()[concept_uri(lang, text, *more)]
