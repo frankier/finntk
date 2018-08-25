@@ -17,6 +17,8 @@ setuptools.setup(
         "nltk>=3.3",
         "gensim>=3.4.0",
         "portalocker>=>1.2.1",
+        "scikit-learn>=0.19.2",
+        "wordfreq>=2.2.0",
     ],
     extras_require={
         "docs": [
