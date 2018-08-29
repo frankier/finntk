@@ -44,6 +44,7 @@ class ResourceMan:
     def bootstrap(self):
         if not self.RESOURCE_NAME:
             assert False
+        self._ensure_data_dir()
         dir = self._get_data_dir()
         if not os.path.exists(dir):
             self._bootstrap()
