@@ -1,7 +1,14 @@
-FROM frolvlad/alpine-python3
+FROM alpine:edge
 
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
+
+# Python
+RUN apk add --no-cache python3 && \
+    python3 -m ensurepip && \
+    rm -r /usr/lib/python*/ensurepip && \
+    pip3 install --upgrade pip setuptools && \
+    rm -r /root/.cache
 
 # Build requirements for pip dependencies (also needed for Python hfst module)
 RUN apk --no-cache add python3-dev build-base libffi-dev linux-headers \
@@ -29,3 +36,6 @@ COPY local-packages.pth /usr/lib/python3.6/site-packages
 # Install pipenv
 RUN pip install --upgrade pip
 RUN pip install pipenv
+
+# Clear cache
+RUN rm -r /root/.cache
