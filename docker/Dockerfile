@@ -33,6 +33,10 @@ COPY install-omorfi.sh /install-omorfi.sh
 RUN ./install-omorfi.sh
 COPY local-packages.pth /usr/lib/python3.6/site-packages
 
+# Install FinnPOS
+COPY install-finnpos.sh /install-finnpos.sh
+RUN ./install-finnpos.sh
+
 # Install pipenv
 RUN pip install --upgrade pip
 RUN pip install pipenv
