@@ -1,0 +1,16 @@
+diff --git a/Makefile b/Makefile.new
+index d38c633..9a1edd9 100644
+--- a/Makefile
++++ b/Makefile.new
+@@ -23,11 +23,6 @@ lre-experiments:ftb-tagger-lre tdt-tagger-lre ftb-omorfi-tagger-lre \
+ tdt-omorfi-tagger-lre
+ 
+ ftb-omorfi-tagger:finnpos share/finnpos/omorfi/morphology.omor.hfst
+-	make -C data/ftb
+-	mkdir -p share/finnpos/ftb_omorfi_model
+-	bin/finnpos-train data/ftb/config data/ftb/ftb.omorfi.train+dev.feats \
+-        data/ftb/ftb.omorfi.dev.feats share/finnpos/ftb_omorfi_model/ftb.omorfi.model
+-	cp data/ftb/freq_words share/finnpos/ftb_omorfi_model
+ 	cat src/scripts/ftb-label | sed "s/REVISION/$(REV)/" > bin/ftb-label
+ 	chmod 755 bin/ftb-label
+ 
