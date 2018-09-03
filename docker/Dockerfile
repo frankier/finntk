@@ -37,6 +37,7 @@ COPY local-packages.pth /usr/lib/python3.6/site-packages
 RUN apk --no-cache add clang clang-dev
 
 # Install FinnPOS
+COPY finnpos-makefile.patch /finnpos-makefile.patch
 COPY install-finnpos.sh /install-finnpos.sh
 RUN ./install-finnpos.sh
 
