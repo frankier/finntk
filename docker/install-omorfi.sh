@@ -1,3 +1,4 @@
+set -ex
 git clone https://github.com/frankier/omorfi.git
 cd omorfi
 git checkout python-api-describer
