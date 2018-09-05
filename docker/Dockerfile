@@ -1,14 +1,7 @@
-FROM alpine:edge
+FROM python:3.7-alpine3.8
 
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
-
-# Python
-RUN apk add --no-cache python3 && \
-    python3 -m ensurepip && \
-    rm -r /usr/lib/python*/ensurepip && \
-    pip3 install --upgrade pip setuptools && \
-    rm -r /root/.cache
 
 # Build requirements for pip dependencies (also needed for Python hfst module)
 RUN apk --no-cache add python3-dev build-base libffi-dev linux-headers \
@@ -31,7 +24,7 @@ RUN pip install hfst
 # Install Omorfi
 COPY install-omorfi.sh /install-omorfi.sh
 RUN ./install-omorfi.sh
-COPY local-packages.pth /usr/lib/python3.6/site-packages
+COPY local-packages.pth /usr/lib/python3.7/site-packages
 
 # Build requirements for FinnPOS
 RUN apk --no-cache add clang clang-dev
