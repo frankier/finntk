@@ -72,7 +72,7 @@ EXTRA_WORD_ID = re.compile("_\d$")
 
 
 def norm_word_id(word_id):
-    extra_match = EXTRA_WORD_ID.match(word_id)
+    extra_match = EXTRA_WORD_ID.search(word_id)
     if extra_match:
         word_id = word_id[:extra_match.start()]
     return word_id.lower()
