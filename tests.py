@@ -1,7 +1,11 @@
 import pytest
 from hypothesis import strategies as st, given
 
-from finntk.omor.extract import extract_lemmas_combs, extract_lemmas_recurs
+from finntk.omor.extract import (
+    extract_lemmas_combs,
+    extract_lemmas_recurs,
+    extract_lemmas_span,
+)
 from finntk.wordnet.reader import fiwn
 from scipy.spatial.distance import cosine
 import heapq
@@ -47,6 +51,17 @@ def test_lemmas_combs(compound, expected_lemmas):
 def test_lemmas_recurs(compound, expected_lemmas):
     actual_lemmas = extract_lemmas_recurs(compound)
     assert actual_lemmas.issuperset(expected_lemmas)
+
+
+@pytest.mark.parametrize(
+    "form, expected",
+    [
+        pytest.param("en", "ei", id="en"),
+        pytest.param("pyykinpesuun", "pyykinpesu", id="pyykinpesuun"),
+    ],
+)
+def test_extract_lemmas_span(form, expected):
+    assert extract_lemmas_span(form) == {expected}
 
 
 def fiwn_conceptnet_common_lemmas():
