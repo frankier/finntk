@@ -1,5 +1,10 @@
 # FinnTK
 
+<p align="center">
+<a href="https://badge.fury.io/py/finntk"><img src="https://badge.fury.io/py/finntk.svg" alt="Available on PyPI" height="18"></a>
+<a href="https://finntk.readthedocs.io/en/latest/?badge=latest"><img alt="Documentation Status" src="https://readthedocs.org/projects/finntk/badge/?version=latest"></a>
+</p>
+
 Some simple high level tools for processing Finnish text.
 
 This project is according to my personal preferences but might be
