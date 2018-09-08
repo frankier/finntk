@@ -40,13 +40,20 @@ class FinnWordNetResMan(ResourceMan):
     def _get_res_filename(self, res):
         return self._resources.get(res, pjoin("data", "dict", res))
 
+    @property
+    def _done_file(self):
+        data_dir = self._get_data_dir()
+        return pjoin(data_dir, ".done")
+
+    def _is_bootstrapped(self):
+        return exists(self._done_file)
+
     def _bootstrap(self, _res=None):
         data_dir = self._get_data_dir()
-        done_file = pjoin(data_dir, ".done")
         with portalocker.Lock(pjoin(data_dir, "../fiwn.lock"), timeout=3600):
-            if not exists(done_file):
+            if not self._is_bootstrapped():
                 git("clone", self.REPO, data_dir)
-                with open(done_file, "w"):
+                with open(self._done_file, "w"):
                     pass
 
 

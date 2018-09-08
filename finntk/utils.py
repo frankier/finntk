@@ -41,12 +41,15 @@ class ResourceMan:
             self._bootstrap(path)
         return path
 
+    def _is_bootstrapped(self):
+        dir = self._get_data_dir()
+        return os.path.exists(dir)
+
     def bootstrap(self):
         if not self.RESOURCE_NAME:
             assert False
-        self._ensure_data_dir()
-        dir = self._get_data_dir()
-        if not os.path.exists(dir):
+        if not self._is_bootstrapped():
+            self._ensure_data_dir()
             self._bootstrap()
 
 
