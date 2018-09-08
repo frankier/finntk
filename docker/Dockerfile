@@ -45,5 +45,5 @@ RUN rm -r /root/.cache
 FROM requirements AS full
 
 COPY . /finntk
-RUN python setup.py install -e .[dev]
-RUN python /finntk/finntk/scripts/bootstrap_all.py
+RUN cd /finntk && python setup.py install -e .\[dev\]
+RUN cd /finntk && python /finntk/finntk/scripts/bootstrap_all.py
