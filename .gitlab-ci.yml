@@ -1,0 +1,35 @@
+image: docker:latest
+
+stages:
+  - build
+  - test
+
+variables:
+  DOCKER_DRIVER: overlay2
+  REQUIREMENTS_IMAGE: $CI_REGISTRY_IMAGE/requirements
+  FULL_IMAGE: $CI_REGISTRY_IMAGE/full
+
+services:
+- docker:dind
+
+before_script:
+  - docker info || true
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY || true
+
+build:
+  stage: build
+  script:
+    - docker pull $REQUIREMENTS_IMAGE:latest || true
+    - docker build --cache-from $FULL_IMAGE:latest -t full -f docker/Dockerfile .
+    - docker tag full $FULL_IMAGE
+    - docker push $FULL_IMAGE
+    - docker build --cache-from $FULL_IMAGE:latest --target requirements -t requirements -f docker/Dockerfile .
+    - docker tag requirements $REQUIREMENTS_IMAGE
+    - docker push $REQUIREMENTS_IMAGE
+
+test:
+  stage: test
+  image: $FULL_IMAGE
+  script:
+    - cd /finntk
+    - pytest tests.py

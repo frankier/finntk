@@ -1,4 +1,4 @@
-FROM python:3.7-alpine3.8
+FROM python:3.7-alpine3.8 AS requirements
 
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
@@ -14,7 +14,7 @@ RUN apk --no-cache add git autoconf automake libtool file
 RUN apk --no-cache add flex bison glib glib-dev
 
 # Install HFST
-COPY install-hfst.sh /install-hfst.sh
+COPY docker/install-hfst.sh /install-hfst.sh
 RUN ./install-hfst.sh
 
 # Build requirements for Omorfi
@@ -22,16 +22,16 @@ RUN apk --no-cache add zip
 RUN pip install hfst
 
 # Install Omorfi
-COPY install-omorfi.sh /install-omorfi.sh
+COPY docker/install-omorfi.sh /install-omorfi.sh
 RUN ./install-omorfi.sh
-COPY local-packages.pth /usr/lib/python3.7/site-packages
+COPY docker/local-packages.pth /usr/lib/python3.7/site-packages
 
 # Build requirements for FinnPOS
 RUN apk --no-cache add clang clang-dev
 
 # Install FinnPOS
-COPY finnpos-makefile.patch /finnpos-makefile.patch
-COPY install-finnpos.sh /install-finnpos.sh
+COPY docker/finnpos-makefile.patch /finnpos-makefile.patch
+COPY docker/install-finnpos.sh /install-finnpos.sh
 RUN ./install-finnpos.sh
 
 # Install pipenv
@@ -40,3 +40,10 @@ RUN pip install pipenv
 
 # Clear cache
 RUN rm -r /root/.cache
+
+
+FROM requirements AS full
+
+COPY . /finntk
+RUN python setup.py install -e .[dev]
+RUN python /finntk/finntk/scripts/bootstrap_all.py
