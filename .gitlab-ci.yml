@@ -19,7 +19,7 @@ before_script:
 build:
   stage: build
   script:
-    - docker pull $REQUIREMENTS_IMAGE:latest || true
+    - docker pull $FULL_IMAGE:latest || true
     - docker build --cache-from $FULL_IMAGE:latest -t full -f docker/Dockerfile .
     - docker tag full $FULL_IMAGE
     - docker push $FULL_IMAGE
