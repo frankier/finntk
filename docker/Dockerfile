@@ -5,7 +5,7 @@ ENV LC_ALL en_US.UTF-8
 
 # Build requirements for pip dependencies (also needed for Python hfst module)
 RUN apk --no-cache add python3-dev build-base libffi-dev linux-headers \
-musl-dev readline-dev
+musl-dev readline-dev openblas-dev
 
 # Build requirements for HFST + Omorfi
 RUN apk --no-cache add git autoconf automake libtool file
