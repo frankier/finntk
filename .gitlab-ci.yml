@@ -27,9 +27,16 @@ build:
     - docker tag requirements $REQUIREMENTS_IMAGE
     - docker push $REQUIREMENTS_IMAGE
 
-test:
+test:pytest:
   stage: test
   image: $FULL_IMAGE
   script:
     - cd /finntk
     - pytest tests.py
+
+test:flake8:
+  stage: test
+  image: $FULL_IMAGE
+  script:
+    - cd /finntk
+    - flake8
