@@ -260,7 +260,19 @@ class FinnWordNetReader(WordNetCorpusReader):
 fiwn = LazyCorpusLoader("fiwn", FinnWordNetReader, None)
 
 
-class EnCountsFinnWordNetReader(FinnWordNetReader):
+class CountCachingMixin:
+
+    def __init__(self, *args, **kwargs) -> None:
+        self._count_cache = {}
+        super().__init__(*args, **kwargs)
+
+    def lemma_count(self, lemma: Lemma) -> int:
+        if lemma._key not in self._count_cache:
+            self._count_cache[lemma._key] = super().lemma_count(lemma)
+        return self._count_cache[lemma._key]
+
+
+class EnCountsFinnWordNetReader(CountCachingMixin, FinnWordNetReader):
 
     def lemmas(self, lemma, pos=None, lang="eng"):
         lemmas = super().lemmas(lemma, pos, lang)
