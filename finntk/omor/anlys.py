@@ -55,7 +55,10 @@ def generate_dict(ana):
 
 
 def generate_or_passthrough(ana):
-    return {ana["word_id"] if s.startswith("[") else s for s in generate_dict(ana)}
+    return {
+        norm_word_id(ana["word_id"]) if s.startswith("[") else s
+        for s in generate_dict(ana)
+    }
 
 
 def lemmas_of_subword_dicts(subword_dicts):
@@ -68,7 +71,7 @@ def lemmas_of_subword_dicts(subword_dicts):
     ]
 
 
-EXTRA_WORD_ID = re.compile("_\d$")
+EXTRA_WORD_ID = re.compile("_\d+$")
 
 
 def norm_word_id(word_id):

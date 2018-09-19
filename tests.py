@@ -100,3 +100,8 @@ def test_surf_vec_matches(surf):
     from finntk.emb.numberbatch import mk_concept_vec
 
     assert cosine(mk_concept_vec("fi", surf), autoextend_vecs.get_vecs()[surf]) < 0.01
+
+
+def test_no_extra_lemmas():
+    vararengas_lemmas = extract_lemmas_span("vararengas")
+    assert "vara_2rengas" not in vararengas_lemmas
