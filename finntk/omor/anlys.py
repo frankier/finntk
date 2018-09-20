@@ -71,7 +71,7 @@ def lemmas_of_subword_dicts(subword_dicts):
     ]
 
 
-EXTRA_WORD_ID = re.compile("_\d+$")
+EXTRA_WORD_ID = re.compile(r"_\d+$")
 
 
 def norm_word_id(word_id):
