@@ -47,3 +47,6 @@ FROM requirements AS full
 COPY . /finntk
 RUN cd /finntk && pip install -e .\[dev\]
 RUN cd /finntk && python /finntk/finntk/scripts/bootstrap_all.py
+
+# Install WordNet
+RUN python3 -c "from nltk import download as d; d('wordnet'); d('omw'); d('punkt')"
