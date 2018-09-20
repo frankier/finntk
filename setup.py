@@ -37,6 +37,7 @@ setuptools.setup(
             "twine>=1.11.0",
             "wheel>=0.31.0",
             "setuptools>=38.6.0",
+            "flake8>=3.5.0",
         ],
     },
     classifiers=[
