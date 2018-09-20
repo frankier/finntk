@@ -5,7 +5,8 @@ def main():
     from finntk.wordnet.reader import fiwn_resman
 
     for res_man in [fasttext_vecs, autoextend_vecs, numberbatch_vecs, fiwn_resman]:
-        res_man.bootstrap()
+        for resource in res_man.resource_names():
+            res_man.bootstrap(resource)
 
 
 if __name__ == "__main__":

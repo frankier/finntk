@@ -41,16 +41,19 @@ class ResourceMan:
             self._bootstrap(path)
         return path
 
+    def resource_names(self):
+        return self._resources.keys()
+
     def _is_bootstrapped(self):
         dir = self._get_data_dir()
         return os.path.exists(dir)
 
-    def bootstrap(self):
+    def bootstrap(self, res=None):
         if not self.RESOURCE_NAME:
             assert False
         if not self._is_bootstrapped():
             self._ensure_data_dir()
-            self._bootstrap()
+            self._bootstrap(res)
 
 
 # Taken from nltk with data file management stuff taken out
