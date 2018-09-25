@@ -1,8 +1,8 @@
-from finntk.emb.utils import avg_vec_from_vecs
 from finntk.emb.autoextend import vecs as fiwn_vecs, mk_lemma_vec
+import numpy as np
 
 
-def mk_context_vec(sent_lemmas):
+def mk_context_vec(aggf, sent_lemmas, lang=None):
     fiwn_space = fiwn_vecs.get_vecs()
 
     def gen():
@@ -17,8 +17,8 @@ def mk_context_vec(sent_lemmas):
                     yielded = True
             if not yielded:
                 try:
-                    fiwn_space.get_vector(lemma_str)
+                    yield fiwn_space.get_vector(lemma_str)
                 except KeyError:
                     pass
 
-    return avg_vec_from_vecs(gen())
+    return aggf(np.stack(gen()))
