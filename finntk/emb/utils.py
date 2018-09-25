@@ -100,7 +100,7 @@ def normalized_mean(mat):
     return normalized_mat.mean(axis=0)
 
 
-def apply_vec(func, vec_getter, stream, lang, **extra):
+def apply_vec(func, vec_getter, stream, lang=None, **extra):
     words, mat = bow_to_mat(vec_getter, stream)
     if mat is None:
         return
