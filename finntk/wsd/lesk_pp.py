@@ -10,15 +10,20 @@ def mk_context_vec(aggf, sent_lemmas, lang=None):
             yielded = False
             if len(lemmas) == 1:
                 try:
-                    yield mk_lemma_vec(lemmas[0])
+                    yield lemma_str, mk_lemma_vec(lemmas[0])
                 except KeyError:
                     pass
                 else:
                     yielded = True
             if not yielded:
                 try:
-                    yield fiwn_space.get_vector(lemma_str)
+                    yield lemma_str, fiwn_space.get_vector(lemma_str)
                 except KeyError:
                     pass
 
-    return aggf(np.stack(gen()))
+    words, vecs = zip(*gen())
+    mat = np.stack(vecs)
+    if hasattr(aggf, "needs_words"):
+        return aggf(mat, words, lang)
+    else:
+        return aggf(mat)
