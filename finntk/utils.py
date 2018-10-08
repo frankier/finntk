@@ -31,7 +31,7 @@ class ResourceMan:
         return self._resources[res]
 
     def _get_res_path(self, res):
-        data_dir = self._ensure_data_dir()
+        data_dir = self._get_data_dir()
         filename = self._get_res_filename(res)
         return pjoin(data_dir, filename)
 
