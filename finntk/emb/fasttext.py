@@ -2,6 +2,7 @@ import logging
 from finntk.utils import ResourceMan, urlretrieve
 from gensim.models import KeyedVectors
 import os
+from .base import MultilingualVectorSpace, RefType
 
 logger = logging.getLogger(__name__)
 
@@ -51,3 +52,19 @@ class FasttextWordVecs(ResourceMan):
 
 
 vecs = FasttextWordVecs()
+
+
+class FasttextMultiSpace(MultilingualVectorSpace):
+    takes = RefType.WORD_FORM
+
+    def get_vec(self, lang: str, ref: str):
+        if lang == "en":
+            space = vecs.get_en()
+        elif lang == "fi":
+            space = vecs.get_fi()
+        else:
+            assert False, "Unsupported language"
+        return space.get_vector(ref)
+
+
+multispace = FasttextMultiSpace()

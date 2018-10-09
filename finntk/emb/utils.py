@@ -24,20 +24,20 @@ def power_mean(p, mat):
         return power_mean_inner(p, mat, axis=0)
 
 
-def bow_to_mat(vec_getter, stream):
-    words = []
+def bow_to_mat(space, stream):
+    refs = []
     vecs = []
-    for word in stream:
+    for ref in stream:
         try:
-            vec = vec_getter(word)
+            vec = space.get_vec(ref)
         except KeyError:
             continue
         else:
-            words.append(word)
+            refs.append(ref)
             vecs.append(vec)
-    if not words:
-        return words, None
-    return words, np.stack(vecs)
+    if not refs:
+        return refs, None
+    return refs, np.stack(vecs)
 
 
 CATP_3 = (float("-inf"), 1, float("inf"))
@@ -82,9 +82,15 @@ def sif_mean_inner(mat, freqs, a):
     return vec - pc[0, :]
 
 
-def sif_mean(mat, words, lang):
+def get_wf(maybe_pair):
+    if isinstance(maybe_pair, tuple):
+        return maybe_pair[0]
+    return maybe_pair
+
+
+def sif_mean(mat, refs, lang):
     return sif_mean_inner(
-        mat, (wordfreq.word_frequency(wf, lang) for wf in words), 1e-3
+        mat, (wordfreq.word_frequency(get_wf(ref), lang) for ref in refs), 1e-3
     )
 
 
@@ -101,11 +107,11 @@ def normalized_mean(mat):
 
 
 def apply_vec(func, vec_getter, stream, lang=None, **extra):
-    words, mat = bow_to_mat(vec_getter, stream)
+    refs, mat = bow_to_mat(vec_getter, stream)
     if mat is None:
         return
     if hasattr(func, "needs_words"):
-        return func(mat, words, lang, **extra)
+        return func(mat, refs, lang, **extra)
     else:
         return func(mat, **extra)
 

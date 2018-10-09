@@ -5,6 +5,7 @@ from finntk.vendor.conceptnet5.uri import concept_uri
 from gensim.models import KeyedVectors
 from shutil import copyfileobj
 import os
+from .base import MultilingualVectorSpace, RefType
 
 logger = logging.getLogger(__name__)
 
@@ -59,3 +60,13 @@ vecs = NumberbatchWordVecs()
 
 def mk_concept_vec(lang, text, *more):
     return vecs.get_vecs()[concept_uri(lang, text, *more)]
+
+
+class NumberbatchMultiSpace(MultilingualVectorSpace):
+    takes = RefType.LEMMA
+
+    def get_vec(self, lang: str, ref: str):
+        return mk_concept_vec(lang, ref)
+
+
+multispace = NumberbatchMultiSpace()
