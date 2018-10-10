@@ -38,6 +38,7 @@ class ResourceMan:
     def get_res(self, res):
         path = self._get_res_path(res)
         if not os.path.exists(path):
+            self._ensure_data_dir()
             self._bootstrap(path)
         return path
 
