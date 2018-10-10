@@ -1,17 +1,9 @@
 from scipy.spatial.distance import cosine
 from nltk.tokenize import word_tokenize
 from nltk.corpus import wordnet
-from finntk.emb.base import (
-    MonolingualVectorSpace,
-    BothVectorSpaceAdapter,
-    MonoVectorSpaceAdapter,
-)
+from finntk.emb.base import BothVectorSpaceAdapter, MonoVectorSpaceAdapter
 from finntk.emb.utils import apply_vec
 from finntk.vendor.metanl.nltk_morphy import tag_and_stem
-
-
-def mk_context_vec(space: MonolingualVectorSpace, aggf, tokens):
-    return apply_vec(aggf, space, tokens, "fi")
 
 
 def lemmatize_tokens(tokens):
@@ -145,5 +137,5 @@ class MultilingualLesk:
                 )
                 for item in choices
             ),
-            mk_context_vec(self.ctx_space, self.aggf, context),
+            apply_vec(self.aggf, self.ctx_space, context, "fi"),
         )
