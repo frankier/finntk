@@ -64,6 +64,7 @@ def mk_concept_vec(lang, text, *more):
 
 class NumberbatchMultiSpace(MultilingualVectorSpace):
     takes = RefType.LEMMA
+    dim = 300
 
     def get_vec(self, lang: str, ref: str):
         return mk_concept_vec(lang, ref)

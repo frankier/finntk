@@ -5,6 +5,7 @@ from shutil import copyfileobj
 import os
 import zipfile
 from .base import MonolingualVectorSpace, RefType
+from .utils import get
 
 logger = logging.getLogger(__name__)
 
@@ -51,10 +52,10 @@ vecs = Word2VecWordVecs()
 
 class Word2VecFiSpace(MonolingualVectorSpace):
     takes = RefType.WORD_FORM
+    dim = 100
 
     def get_vec(self, ref: str):
-        space = vecs.get_vecs()
-        return space.get_vector(ref)
+        return get(vecs.get_vecs(), ref)
 
 
 space = Word2VecFiSpace()

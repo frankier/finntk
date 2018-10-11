@@ -28,13 +28,11 @@ def bow_to_mat(space, stream):
     refs = []
     vecs = []
     for ref in stream:
-        try:
-            vec = space.get_vec(ref)
-        except KeyError:
+        vec = space.get_vec(ref)
+        if vec is None:
             continue
-        else:
-            refs.append(ref)
-            vecs.append(vec)
+        refs.append(ref)
+        vecs.append(vec)
     if not refs:
         return refs, None
     return refs, np.stack(vecs)
@@ -120,3 +118,10 @@ def cosine_sim(u, v):
     from scipy.spatial.distance import cosine
 
     return 1 - cosine(u, v)
+
+
+def get(space, ref):
+    try:
+        return space.get_vector(ref)
+    except KeyError:
+        pass

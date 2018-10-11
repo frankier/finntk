@@ -11,6 +11,7 @@ class RefType(Enum):
 
 class LexicalVectorSpace(ABC):
     takes: RefType
+    dim: int
 
 
 class MultilingualVectorSpace(LexicalVectorSpace):
@@ -34,6 +35,7 @@ class MonoVectorSpaceAdapter(MonolingualVectorSpace):
         self.inner = inner
         self.lang = lang
         self.takes = self.inner.takes
+        self.dim = self.inner.dim
 
     def get_vec(self, ref):
         return self.inner.get_vec(self.lang, ref)
@@ -44,6 +46,7 @@ class BothVectorSpaceAdapter(MonolingualVectorSpace):
 
     def __init__(self, inner: MonolingualVectorSpace):
         self.inner = inner
+        self.dim = self.inner.dim
 
     def get_vec(self, ref: Tuple[str, str]):
         if self.inner.takes == RefType.WORD_FORM:
