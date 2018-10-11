@@ -6,6 +6,7 @@ from gensim.models import KeyedVectors
 from shutil import copyfileobj
 import os
 from .base import MultilingualVectorSpace, RefType
+from .utils import get
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +60,7 @@ vecs = NumberbatchWordVecs()
 
 
 def mk_concept_vec(lang, text, *more):
-    return vecs.get_vecs()[concept_uri(lang, text, *more)]
+    return get(vecs.get_vecs(), concept_uri(lang, text, *more))
 
 
 class NumberbatchMultiSpace(MultilingualVectorSpace):
