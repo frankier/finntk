@@ -4,6 +4,7 @@ from nltk.corpus import wordnet
 from finntk.emb.base import BothVectorSpaceAdapter, MonoVectorSpaceAdapter
 from finntk.emb.utils import apply_vec
 from finntk.vendor.metanl.nltk_morphy import tag_and_stem
+from finntk.wordnet.reader import fiwn
 
 
 def lemmatize_tokens(tokens):
@@ -63,34 +64,6 @@ def expanded_defn_getter(lemma):
     return tokens
 
 
-def mk_defn_vec_inner(aggf, vec_getter, lemma, transform_tokens, defn_getter):
-    return apply_vec(aggf, vec_getter, transform_tokens(defn_getter(lemma)), "en")
-
-
-def mk_defn_vec(space, aggf, lemma, wn_filter=False, expand=False):
-    if expand:
-        defn_getter = expanded_defn_getter
-    else:
-        defn_getter = unexpanded_defn_getter
-    if wn_filter:
-
-        def transform_tokens(tokens):
-            lemmatized = lemmatize_tokens(tokens)
-            return (
-                (to, le)
-                for to, le in zip(tokens, lemmatized)
-                if len(wordnet.lemmas(le))
-            )
-
-    else:
-
-        def transform_tokens(tokens):
-            lemmatized = lemmatize_tokens(tokens)
-            return zip(tokens, lemmatized)
-
-    return mk_defn_vec_inner(aggf, space, lemma, transform_tokens, defn_getter)
-
-
 def get_defn_distance(context_vec, defn_vec):
     if defn_vec is None or context_vec is None:
         return 7
@@ -100,12 +73,20 @@ def get_defn_distance(context_vec, defn_vec):
 def disambg_one(lemma_defns, context_vec):
     best_lemma = None
     best_dist = 8
+    if context_vec is None:
+        return best_lemma, best_dist
     for lemma, defn_vec in lemma_defns:
+        if defn_vec is None:
+            continue
         dist = get_defn_distance(context_vec, defn_vec)
         if dist < best_dist:
             best_lemma = lemma
             best_dist = dist
     return best_lemma, best_dist
+
+
+def wn_filter_stream(wn, stream):
+    return ((to, le) for to, le in stream if len(wn.lemmas(le)))
 
 
 class MultilingualLesk:
@@ -122,20 +103,28 @@ class MultilingualLesk:
         self.wn_filter = wn_filter
         self.expand = expand
 
+    def mk_defn_vec(self, item):
+        if self.expand:
+            defn_tokens = expanded_defn_getter(item)
+        else:
+            defn_tokens = unexpanded_defn_getter(item)
+
+        lemmatized = lemmatize_tokens(defn_tokens)
+        stream = zip(defn_tokens, lemmatized)
+        if self.wn_filter:
+            stream = wn_filter_stream(wordnet, stream)
+
+        vec = apply_vec(self.aggf, self.defn_space, stream, "en")
+        return vec
+
+    def mk_ctx_vec(self, context):
+        if self.wn_filter:
+            context = wn_filter_stream(fiwn, context)
+        vec = apply_vec(self.aggf, self.ctx_space, context, "fi"),
+        return vec
+
     def disambg_one(self, choices, context):
         return disambg_one(
-            (
-                (
-                    item,
-                    mk_defn_vec(
-                        self.defn_space,
-                        self.aggf,
-                        item,
-                        wn_filter=self.wn_filter,
-                        expand=self.expand,
-                    ),
-                )
-                for item in choices
-            ),
-            apply_vec(self.aggf, self.ctx_space, context, "fi"),
+            ((item, self.mk_defn_vec(item)) for item in choices),
+            self.mk_ctx_vec(context),
         )
