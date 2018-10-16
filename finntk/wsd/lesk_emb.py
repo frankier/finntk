@@ -120,7 +120,7 @@ class MultilingualLesk:
     def mk_ctx_vec(self, context):
         if self.wn_filter:
             context = wn_filter_stream(fiwn, context)
-        vec = apply_vec(self.aggf, self.ctx_space, context, "fi"),
+        vec = apply_vec(self.aggf, self.ctx_space, context, "fi")
         return vec
 
     def disambg_one(self, choices, context):
