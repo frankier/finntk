@@ -60,7 +60,7 @@ def compute_pc(X):
     return svd.components_
 
 
-def sif_mean_inner(mat, freqs, a):
+def pre_sif_mean_inner(mat, freqs, a):
     """
     From *A Simple but Tough-to-Beat Baseline for Sentence Embeddings*
     https://openreview.net/forum?id=SyK00v5xx
@@ -72,12 +72,7 @@ def sif_mean_inner(mat, freqs, a):
     rows, cols = mat.shape
     for coli, freq in enumerate(freqs):
         mat[coli, :] = (a / (a + freq)) * mat[coli, :]
-    # 3. Remove principal component
-    vec = mat.mean(axis=0)
-    if np.size(mat, 0) <= 1:
-        return vec
-    pc = compute_pc(mat)
-    return vec - pc[0, :]
+    return mat.mean(axis=0)
 
 
 def get_wf(maybe_pair):
@@ -86,13 +81,13 @@ def get_wf(maybe_pair):
     return maybe_pair
 
 
-def sif_mean(mat, refs, lang):
-    return sif_mean_inner(
+def pre_sif_mean(mat, refs, lang):
+    return pre_sif_mean_inner(
         mat, (wordfreq.word_frequency(get_wf(ref), lang) for ref in refs), 1e-3
     )
 
 
-sif_mean.needs_words = True
+pre_sif_mean.needs_words = True
 
 
 def unnormalized_mean(mat):
