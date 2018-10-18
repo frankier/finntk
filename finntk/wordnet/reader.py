@@ -272,7 +272,17 @@ class CountCachingMixin:
         return self._count_cache[lemma._key]
 
 
-class EnCountsFinnWordNetReader(CountCachingMixin, FinnWordNetReader):
+class LemmaFreqMixin:
+    ADD_CONST = 1000
+
+    def lemma_freqs(self, lemma: str, pos=None, lang="eng") -> float:
+        lemmas = self.lemmas(lemma, pos, lang)
+        adjusted_counts = [lemma.count() + self.ADD_CONST for lemma in lemmas]
+        total = sum(adjusted_counts)
+        return zip(lemmas, (adj_count / total for adj_count in adjusted_counts))
+
+
+class EnCountsFinnWordNetReader(CountCachingMixin, LemmaFreqMixin, FinnWordNetReader):
 
     def lemmas(self, lemma, pos=None, lang="eng"):
         lemmas = super().lemmas(lemma, pos, lang)

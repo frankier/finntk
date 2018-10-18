@@ -5,6 +5,7 @@ from finntk.emb.base import BothVectorSpaceAdapter, MonoVectorSpaceAdapter
 from finntk.emb.utils import apply_vec
 from finntk.vendor.metanl.nltk_morphy import tag_and_stem
 from finntk.wordnet.reader import fiwn
+from itertools import repeat
 
 
 def lemmatize_tokens(tokens):
@@ -64,25 +65,30 @@ def expanded_defn_getter(lemma):
     return tokens
 
 
-def get_defn_distance(context_vec, defn_vec):
-    if defn_vec is None or context_vec is None:
-        return 7
-    return cosine(defn_vec, context_vec)
+def safe_cosine_sim(u, v):
+    if u is None or v is None:
+        return -2
+    return cosine(u, v)
 
 
-def disambg_one(lemma_defns, context_vec):
+def disambg_one(lemma_defns, context_vec, freqs=repeat(None)):
     best_lemma = None
-    best_dist = 8
+    best_sim = float("-inf")
     if context_vec is None:
-        return best_lemma, best_dist
-    for lemma, defn_vec in lemma_defns:
+        return best_lemma, best_sim
+    for (lemma, defn_vec), freq in zip(lemma_defns, freqs):
         if defn_vec is None:
             continue
-        dist = get_defn_distance(context_vec, defn_vec)
-        if dist < best_dist:
+        sim = safe_cosine_sim(context_vec, defn_vec)
+        if freq is not None:
+            if sim >= 0:
+                sim *= freq
+            else:
+                sim /= freq
+        if sim > best_sim:
             best_lemma = lemma
-            best_dist = dist
-    return best_lemma, best_dist
+            best_sim = sim
+    return best_lemma, best_sim
 
 
 def wn_filter_stream(wn, stream):
@@ -91,7 +97,7 @@ def wn_filter_stream(wn, stream):
 
 class MultilingualLesk:
 
-    def __init__(self, multispace, aggf, wn_filter=False, expand=False):
+    def __init__(self, multispace, aggf, wn_filter=False, expand=False, use_freq=False):
         self.multispace = multispace
         self.defn_space = BothVectorSpaceAdapter(
             MonoVectorSpaceAdapter(multispace, "en")
@@ -102,6 +108,7 @@ class MultilingualLesk:
         self.aggf = aggf
         self.wn_filter = wn_filter
         self.expand = expand
+        self.use_freq = use_freq
 
     def mk_defn_vec(self, item):
         if self.expand:
@@ -123,8 +130,18 @@ class MultilingualLesk:
         vec = apply_vec(self.aggf, self.ctx_space, context, "fi")
         return vec
 
-    def disambg_one(self, choices, context):
+    def disambg_one(self, choice_freqs, context):
+        if self.use_freq:
+            choices = []
+            freqs = []
+            for choice, freq in choice_freqs:
+                choices.append(choice)
+                freqs.append(freq)
+        else:
+            choices = choice_freqs
+            freqs = None
         return disambg_one(
             ((item, self.mk_defn_vec(item)) for item in choices),
             self.mk_ctx_vec(context),
+            freqs,
         )
