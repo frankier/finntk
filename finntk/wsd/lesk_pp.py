@@ -1,3 +1,6 @@
+"""
+Implementation of Lesk++, which *may* be broken.
+"""
 from finntk.emb.autoextend import vecs as fiwn_vecs, mk_lemma_vec
 import numpy as np
 from .lesk_emb import MultilingualLesk
