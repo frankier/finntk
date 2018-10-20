@@ -72,7 +72,9 @@ def safe_cosine_sim(u, v):
     return cosine_sim(u, v)
 
 
-def disambg_one(lemma_defns, context_vec, freqs=repeat(None)):
+def disambg_one(lemma_defns, context_vec, freqs=None):
+    if freqs is None:
+        freqs = repeat(None)
     best_lemma = None
     best_sim = float("-inf")
     if context_vec is None:
