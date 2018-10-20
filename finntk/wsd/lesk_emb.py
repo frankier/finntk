@@ -1,4 +1,3 @@
-from scipy.spatial.distance import cosine
 from nltk.tokenize import word_tokenize
 from nltk.corpus import wordnet
 from finntk.emb.base import BothVectorSpaceAdapter, MonoVectorSpaceAdapter
@@ -66,9 +65,11 @@ def expanded_defn_getter(lemma):
 
 
 def safe_cosine_sim(u, v):
+    from finntk.emb.utils import cosine_sim
+
     if u is None or v is None:
         return -2
-    return cosine(u, v)
+    return cosine_sim(u, v)
 
 
 def disambg_one(lemma_defns, context_vec, freqs=repeat(None)):
