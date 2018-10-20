@@ -90,6 +90,16 @@ def pre_sif_mean(mat, refs, lang):
 pre_sif_mean.needs_words = True
 
 
+def mk_sif_mean(pc):
+
+    def sif_mean(mat, refs, lang):
+        emb = pre_sif_mean(mat, refs, lang)
+        return emb - emb.dot(pc) * pc
+
+    sif_mean.needs_words = True
+    return sif_mean
+
+
 def unnormalized_mean(mat):
     return mat.mean(axis=0)
 
