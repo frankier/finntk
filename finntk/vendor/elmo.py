@@ -112,3 +112,65 @@ def embed_sentence(model, sent, output_layer=-1):
     else:
         payload = data[output_layer]
     return payload
+
+
+def read_sents(sents, max_chars=None):
+    dataset = []
+    textset = []
+    for sent in sents:
+        data = ['<bos>']
+        text = []
+        for token in sent:
+            text.append(token)
+            if max_chars is not None and len(token) + 2 > max_chars:
+                token = token[:max_chars - 2]
+            data.append(token)
+        data.append('<eos>')
+        dataset.append(data)
+        textset.append(text)
+    return dataset, textset
+
+
+def create_batches(x, batch_size, word2id, char2id, config, use_cuda=False):
+    from elmoformanylangs.gen_elmo import create_one_batch
+    batches_w, batches_c, batches_lens, batches_masks = [], [], [], []
+    size = batch_size
+    nbatch = (len(x) - 1) // size + 1
+    for i in range(nbatch):
+        start_id, end_id = i * size, (i + 1) * size
+        bw, bc, blens, bmasks = create_one_batch(
+            x[start_id: end_id], word2id, char2id, config,
+            sort=False, use_cuda=use_cuda)
+        batches_w.append(bw)
+        batches_c.append(bc)
+        batches_lens.append(blens)
+        batches_masks.append(bmasks)
+
+    return batches_w, batches_c, batches_lens, batches_masks
+
+
+def embed_sentences(model, sents, output_layer=-1, batch_size=64):
+    config = model.config
+    if config['token_embedder']['name'].lower() == 'cnn':
+        batch_x, batch_text = read_sents(sents, config['token_embedder']['max_characters_per_token'])
+    else:
+        batch_x, batch_text = read_sents(sents)
+    batch_w, batch_c, batch_lens, batch_masks = create_batches(
+        batch_x, batch_size, model.word_lexicon, model.char_lexicon, config, use_cuda=model.use_cuda)
+    res = []
+    for w, c, lens, masks in zip(batch_w, batch_c, batch_lens, batch_masks):
+        output = model.forward(w, c, masks)
+        for i in range(len(lens)):
+            if config['encoder']['name'].lower() == 'lstm':
+                data = output[i, 1:lens[i]-1, :].data
+            elif config['encoder']['name'].lower() == 'elmo':
+                data = output[:, i, 1:lens[i]-1, :].data
+            if model.use_cuda:
+                data = data.cpu()
+            data = data.numpy()
+            if output_layer == -1:
+                payload = np.average(data, axis=0)
+            else:
+                payload = data[output_layer]
+            res.append(payload)
+    return res
