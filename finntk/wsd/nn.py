@@ -52,5 +52,8 @@ class WordExpertManager:
             pickle.dump(expert, outf)
 
     def load_expert(self, word):
-        with open(self._expert_path(word), "rb") as inf:
+        expert_path = self._expert_path(word)
+        if not exists(expert_path):
+            return
+        with open(expert_path, "rb") as inf:
             return pickle.load(inf)
