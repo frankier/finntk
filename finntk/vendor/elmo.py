@@ -78,6 +78,15 @@ def read_sent(sent, max_chars=None):
     return dataset, textset
 
 
+def get_layer(data, layer):
+    if layer == -2:
+        return np.r_[np.expand_dims(np.average(data, axis=0), 0), data]
+    elif layer == -1:
+        return np.average(data, axis=0)
+    else:
+        return data[layer]
+
+
 def embed_sentence(model, sent, output_layer=-1):
     from elmoformanylangs.gen_elmo import create_one_batch
     config = model.config
@@ -107,11 +116,7 @@ def embed_sentence(model, sent, output_layer=-1):
             if model.use_cuda:
                 data = data.cpu()
             data = data.numpy()
-    if output_layer == -1:
-        payload = np.average(data, axis=0)
-    else:
-        payload = data[output_layer]
-    return payload
+    return get_layer(data, output_layer)
 
 
 def read_sents(sents, max_chars=None):
@@ -168,9 +173,5 @@ def embed_sentences(model, sents, output_layer=-1, batch_size=64):
             if model.use_cuda:
                 data = data.cpu()
             data = data.numpy()
-            if output_layer == -1:
-                payload = np.average(data, axis=0)
-            else:
-                payload = data[output_layer]
-            res.append(payload)
+            res.append(get_layer(data, output_layer))
     return res
