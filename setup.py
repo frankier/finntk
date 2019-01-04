@@ -22,6 +22,7 @@ setuptools.setup(
         "portalocker>=>1.2.1",
         "scikit-learn>=0.19.2",
         "wordfreq>=2.2.0",
+        "pytorch_pretrained_bert",
     ],
     extras_require={
         "docs": [
