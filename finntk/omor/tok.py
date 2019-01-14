@@ -13,6 +13,7 @@ def get_token_positions(tokenised, text):
     for token in tokenised:
         start = text.index(token["surf"], start)
         starts.append(start)
+        start += len(token["surf"])
     return starts
 
 
