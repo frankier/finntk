@@ -19,7 +19,7 @@ setuptools.setup(
         "gensim>=3.4.0",
         # Dependency of gensim - earlier versions can resolution problems
         "smart_open>=1.7.1",
-        "portalocker>=>1.2.1",
+        "portalocker>=1.2.1",
         "scikit-learn>=0.19.2",
         "wordfreq>=2.2.0",
         "pytorch_pretrained_bert",
