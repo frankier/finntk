@@ -28,6 +28,20 @@ def labelsegment_to_tokens(labelsegmented):
         yield typ, value
 
 
+def tokens_to_labelsegment(tokens):
+    bits = []
+    for typ, value in tokens:
+        if typ == "seg":
+            bits.append("{" + value + "}")
+        elif typ == "tag":
+            bits.append("[" + value + "]")
+        elif typ == "surf":
+            bits.append(value)
+        else:
+            assert False
+    return "".join(bits)
+
+
 def tokens_to_subword_tokens(it):
 
     def is_cmp_bound(kv):
