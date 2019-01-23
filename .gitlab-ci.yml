@@ -8,6 +8,8 @@ variables:
   DOCKER_DRIVER: overlay2
   REQUIREMENTS_IMAGE: $CI_REGISTRY_IMAGE/requirements
   FULL_IMAGE: $CI_REGISTRY_IMAGE/full
+  REQUIREMENTS_DEB_IMAGE: $CI_REGISTRY_IMAGE/requirements-deb
+  FULL_DEB_IMAGE: $CI_REGISTRY_IMAGE/full-deb
 
 services:
 - docker:dind
@@ -26,6 +28,17 @@ build:
     - docker build --cache-from $FULL_IMAGE:latest --target requirements -t requirements -f docker/Dockerfile .
     - docker tag requirements $REQUIREMENTS_IMAGE
     - docker push $REQUIREMENTS_IMAGE
+
+build:deb:
+  stage: build
+  script:
+    - docker pull $FULL_DEB_IMAGE:latest || true
+    - docker build --cache-from $FULL_DEB_IMAGE:latest -t full -f docker/Dockerfile.debian .
+    - docker tag full $FULL_DEB_IMAGE
+    - docker push $FULL_DEB_IMAGE
+    - docker build --cache-from $FULL_DEB_IMAGE:latest --target requirements -t requirements-deb -f docker/Dockerfile.debian .
+    - docker tag requirements-deb $REQUIREMENTS_DEB_IMAGE
+    - docker push $REQUIREMENTS_DEB_IMAGE
 
 test:pytest:
   stage: test
