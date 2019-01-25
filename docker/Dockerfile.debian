@@ -44,6 +44,9 @@ RUN ./install-finnpos.sh
 RUN pip3 install --upgrade pip
 RUN pip3 install pipenv
 
+# Fixup pythonpath
+RUN echo "/usr/local/lib/python3.7/site-packages/" > "/usr/local/lib/python3.7/dist-packages/site.pth"
+
 FROM requirements as full
 
 COPY . /finntk
