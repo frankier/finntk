@@ -12,7 +12,7 @@ setuptools.setup(
     package_data={"finntk": ["vendor/cnn_50_100_512_4096_sample.json"]},
     install_requires=[
         "more_itertools>=4.1.0",
-        "pyahocorasick>=1.1.8",
+        "pyahocorasick",
         "appdirs>=1.4.3",
         "plumbum>=1.6.6",
         "nltk>=3.3",
