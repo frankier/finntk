@@ -14,7 +14,8 @@ RUN apt-get update && apt-get install -y \
     # Build requirements for HFST
         flex bison libglib2.0-0 libglib2.0-dev swig \
     # Build requirements for FinnPOS
-        clang wget
+        clang wget \
+ && rm -rf /var/lib/apt/lists/*
 
 # Pipenv
 RUN pip3 install pipenv
@@ -47,7 +48,7 @@ RUN pip3 install pipenv
 FROM requirements as full
 
 COPY . /finntk
-RUN cd /finntk && pip3 install -e .\[dev\]
+RUN cd /finntk && pip3 install --no-cache-dir -e .\[dev\]
 RUN cd /finntk && python /finntk/finntk/scripts/bootstrap_all.py
 
 # Install WordNet
