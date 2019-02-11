@@ -11,8 +11,8 @@ logger = logging.getLogger(__name__)
 class FasttextWordVecs(ResourceMan):
     RESOURCE_NAME = "fasttext-multilingual"
 
-    FI_URL = "https://s3.amazonaws.com/arrival/embeddings/wiki.multi.fi.vec"
-    EN_URL = "https://s3.amazonaws.com/arrival/embeddings/wiki.multi.en.vec"
+    FI_URL = "https://dl.fbaipublicfiles.com/arrival/vectors/wiki.multi.fi.vec"
+    EN_URL = "https://dl.fbaipublicfiles.com/arrival/vectors/wiki.multi.en.vec"
 
     def __init__(self):
         super().__init__()
