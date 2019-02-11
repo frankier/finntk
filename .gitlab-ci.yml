@@ -30,6 +30,8 @@ build:
     - docker push $REQUIREMENTS_IMAGE
 
 build:deb:
+  tags:
+    - dedi
   stage: build
   script:
     - docker pull $FULL_DEB_IMAGE:latest || true
