@@ -26,6 +26,7 @@ RUN ln -sf /usr/bin/python3.7 /usr/bin/python
 # Install HFST
 COPY docker/install-hfst.sh /install-hfst.sh
 RUN ./install-hfst.sh python
+RUN rm -rf /hfst
 RUN ldconfig
 
 # Build requirements for Omorfi
@@ -34,12 +35,14 @@ RUN ldconfig
 # Install Omorfi
 COPY docker/install-omorfi.sh /install-omorfi.sh
 RUN ./install-omorfi.sh
+RUN rm -rf /omorfi
 COPY docker/local-packages.pth /usr/lib/python3.7/site-packages
 
 # Install FinnPOS
 COPY docker/finnpos-makefile.patch /finnpos-makefile.patch
 COPY docker/install-finnpos.sh /install-finnpos.sh
 RUN ./install-finnpos.sh
+RUN rm -rf /FinnPOS
 
 # Install pipenv
 RUN pip3 install --upgrade pip
