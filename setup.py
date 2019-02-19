@@ -22,9 +22,6 @@ setuptools.setup(
         "portalocker>=1.2.1",
         "scikit-learn>=0.19.2",
         "wordfreq>=2.2.0",
-        # Dependency of pytorch_pretrained_bert
-        "torch>=1.0.0",
-        "pytorch_pretrained_bert",
     ],
     extras_require={
         "docs": [
@@ -42,6 +39,11 @@ setuptools.setup(
             "wheel>=0.31.0",
             "setuptools>=38.6.0",
             "flake8>=3.5.0",
+        ],
+        "gpu": [
+            # Dependency of pytorch_pretrained_bert
+            "torch>=1.0.0",
+            "pytorch_pretrained_bert",
         ],
     },
     classifiers=[
