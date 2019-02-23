@@ -28,7 +28,6 @@ setuptools.setup(
             "sphinx_autodoc_typehints",
             "sphinx>=1.5",
             "sphinx_rtd_theme",
-            "pytest_check_links",
             "recommonmark",
         ],
         "dev": [
