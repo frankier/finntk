@@ -78,7 +78,12 @@ def fiwn_conceptnet_common_lemmas():
     return intersect(fiwn.all_lemma_names(), fi_lemmas())
 
 
-@given(st.sampled_from(fiwn_conceptnet_common_lemmas()))
+fiwn_conceptnet_common_lemmas_300 = [
+    x for _, x in zip(range(300), fiwn_conceptnet_common_lemmas())
+]
+
+
+@given(st.sampled_from(fiwn_conceptnet_common_lemmas_300))
 def test_get_lemma_vec(lemma_name):
     from finntk.emb.autoextend import mk_lemma_vec
 
@@ -86,7 +91,7 @@ def test_get_lemma_vec(lemma_name):
         assert mk_lemma_vec(lemma) is not None
 
 
-@given(st.sampled_from(fiwn_conceptnet_common_lemmas()))
+@given(st.sampled_from(fiwn_conceptnet_common_lemmas_300))
 def test_get_synset_vec(lemma_name):
     from finntk.emb.autoextend import mk_synset_vec
 
