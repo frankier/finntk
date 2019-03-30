@@ -10,6 +10,7 @@ from nltk.corpus.reader.wordnet import (
     ADJ_SAT,
     WordNetError,
 )
+from itertools import groupby
 import logging
 import re
 from plumbum.cmd import git
@@ -61,6 +62,7 @@ fiwn_resman = FinnWordNetResMan()
 
 
 class FinnWordNetReader(WordNetCorpusReader):
+    synset_cls = Synset
 
     def __init__(self, *args, **kwargs):
         fiwn_resman.bootstrap()
@@ -73,12 +75,22 @@ class FinnWordNetReader(WordNetCorpusReader):
             return wordnet.open("lexnames")
         return super().open(filename)
 
-    def _synset_from_pos_and_line(self, pos, data_file_line):
-        # Copied and modified for FiWN. The only change is the handling of
-        # FiWN's special <tag/> syntactic markers.
+    def filter_new_lemmas(self, lemmas):
+        return lemmas
 
+    def filter_synset_offsets(self, synset_offsets):
+        return list(synset_offsets)
+
+    def _synset_from_pos_and_line(self, pos, data_file_line):
+        # Copied and modified for FiWN. Changes to handle;
+        #
+        # 1. Handling of FiWN's special <tag/> syntactic markers.
+        #
+        # 2. Create synsets using self.synset_cls
+
+        # FiWN change: create synsets using self.synset_cls
         # Construct a new (empty) synset.
-        synset = Synset(self)
+        synset = self.synset_cls(self)
 
         # parse the entry for this synset
         try:
@@ -119,6 +131,7 @@ class FinnWordNetReader(WordNetCorpusReader):
                 # get the lex_id (used for sense_keys)
                 lex_id = int(_next_token(), 16)
                 # If the lemma has a syntactic marker, extract it.
+                # FiWN change: extract XML tag
                 m = re.match(r"([^<]*)(<.*)?$", lemma_name)
                 lemma_name, syn_mark = m.groups()
                 # create the lemma object
@@ -202,19 +215,24 @@ class FinnWordNetReader(WordNetCorpusReader):
         return synset
 
     def _load_lemma_pos_offset_map(self):
-        # Copied and modified for FiWN. The only changes are to handle a single
-        # entry: FiWN contains an empty lemma for `taken` as in `taken
-        # ill/drunk`. Thus lines beginning with two spaces as are treated as a
-        # comment instead of ones starting with one space and tokenisation is
-        # done on spaces instead of all whitespace.
-
+        # Copied and modified for FiWN. Two changes:
+        #
+        # 1. Handle a single entry: FiWN contains an empty lemma for `taken` as
+        #    in `taken ill/drunk`. Thus lines beginning with two spaces as are
+        #    treated as a comment instead of ones starting with one space and
+        #    tokenisation is done on spaces instead of all whitespace.
+        #
+        # 2. Deduplicate synset offsets. Unlike PWN, FiWN seems to contain many
+        #    duplicates: e.g. estää points at 01417321-v twice.
         for suffix in self._FILEMAP.values():
 
             # parse each line of the file (ignoring comment lines)
             for i, line in enumerate(self.open("index.%s" % suffix)):
+                # FiWN change: "  " is a comment, not " "
                 if line.startswith("  "):
                     continue
 
+                # FiWN change: tokenise on space
                 _iter = iter(line.split(" "))
 
                 def _next_token():
@@ -244,7 +262,10 @@ class FinnWordNetReader(WordNetCorpusReader):
                     _next_token()
 
                     # get synset offsets
-                    synset_offsets = [int(_next_token()) for _ in range(n_synsets)]
+                    # FiWN change: skip duplicates
+                    synset_offsets = self.filter_synset_offsets(
+                        (int(_next_token()) for _ in range(n_synsets))
+                    )
 
                 # raise more informative error with file name and line number
                 except (AssertionError, ValueError) as e:
@@ -256,8 +277,37 @@ class FinnWordNetReader(WordNetCorpusReader):
                 if pos == ADJ:
                     self._lemma_pos_offset_map[lemma][ADJ_SAT] = synset_offsets
 
+    def _morphy(self, form, pos, check_exceptions=True):
+        return [form]
+
 
 fiwn = LazyCorpusLoader("fiwn", FinnWordNetReader, None)
+
+
+class UniqueLemmaSynset(Synset):
+
+    def lemmas(self, lang="eng"):
+        lemmas = super().lemmas(lang)
+        if lang == "eng":
+            bests = {}
+            for lemma in lemmas:
+                lemma_name = lemma.name()
+                if (
+                    lemma_name not in bests
+                    or (
+                        not bests[lemma_name].syntactic_marker()
+                        and lemma.syntactic_marker()
+                    )
+                ):
+                    bests[lemma_name] = lemma
+            return list(bests.values())
+
+
+class UniqueLemmaMixin:
+    synset_cls = UniqueLemmaSynset
+
+    def filter_synset_offsets(self, synset_offsets):
+        return [k for k, _ in groupby(synset_offsets)]
 
 
 class CountCachingMixin:
@@ -282,14 +332,36 @@ class LemmaFreqMixin:
         return zip(lemmas, (adj_count / total for adj_count in adjusted_counts))
 
 
-class EnCountsFinnWordNetReader(CountCachingMixin, LemmaFreqMixin, FinnWordNetReader):
+class EnCountsMixin(CountCachingMixin, LemmaFreqMixin):
 
     def lemmas(self, lemma, pos=None, lang="eng"):
         lemmas = super().lemmas(lemma, pos, lang)
         return sorted(lemmas, key=lambda l: -l.count())
 
 
-fiwn_encnt = LazyCorpusLoader("fiwn", EnCountsFinnWordNetReader, None)
+class EnCountsFinnWordNetReader(EnCountsMixin, FinnWordNetReader):
+    pass
+
+
+fiwn_encnt = LazyCorpusLoader("fiwn_encnt", EnCountsFinnWordNetReader, None)
+
+
+class UniqueLemmaFinnWordNetReader(UniqueLemmaMixin, FinnWordNetReader):
+    pass
+
+
+fiwn_uniq = LazyCorpusLoader("fiwn_uniq", UniqueLemmaFinnWordNetReader, None)
+
+
+class EnCountsUniqueLemmaFinnWordNetReader(
+    EnCountsMixin, UniqueLemmaMixin, FinnWordNetReader
+):
+    pass
+
+
+fiwn_encnt_uniq = LazyCorpusLoader(
+    "fiwn_encnt_uniq", EnCountsUniqueLemmaFinnWordNetReader, None
+)
 
 
 en_fi_maps = None
