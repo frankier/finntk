@@ -5,16 +5,18 @@ from os.path import join as pjoin, exists
 import pickle
 
 
-class WordExpert:
+def normalize(vec):
+    vec_norm = np.linalg.norm(vec)
+    return vec / vec_norm
+
+
+class WordExpertBase:
 
     def __init__(self):
-        self.xs = []
         self.ys = []
         self.clf = None
 
     def add_word(self, ctx_vec, sense_key):
-        vec_norm = np.linalg.norm(ctx_vec)
-        self.xs.append(ctx_vec / vec_norm)
         self.ys.append(sense_key)
 
     def fit(self):
@@ -27,6 +29,36 @@ class WordExpert:
         indices = self.clf.kneighbors([ctx_vec], return_distance=False)
         index = indices[0, 0]
         return self.ys[index]
+
+
+class FixedWordExpert(WordExpertBase):
+    """
+    This uses np.float64 because it's what ball_tree uses
+    """
+
+    def __init__(self, size):
+        self.xs = None
+        self.x_idx = 0
+        self.size = size
+        super().__init__()
+
+    def add_word(self, ctx_vec, sense_key):
+        if self.xs is None:
+            self.xs = np.ndarray((self.size, ctx_vec.shape[0]), dtype=np.float64)
+        self.xs[self.x_idx] = normalize(ctx_vec)
+        self.x_idx += 1
+        super().add_word(ctx_vec, sense_key)
+
+
+class VarWordExpert(WordExpertBase):
+
+    def __init__(self):
+        self.xs = []
+        super().__init__()
+
+    def add_word(self, ctx_vec, sense_key):
+        self.xs.append(normalize(ctx_vec))
+        super().add_word(ctx_vec, sense_key)
 
 
 class ExpertExists(Exception):
