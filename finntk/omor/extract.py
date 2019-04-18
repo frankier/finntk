@@ -18,6 +18,8 @@ def _extract_lemmas(word_form, get_slices):
     analyses = omorfi.analyse(word_form)
     res = set()
     for analysis in analyses:
+        if analysis.get("OOV"):
+            continue
         analysis_dicts = analysis_to_subword_dicts(analysis["anal"])
         for analysis_slice in get_slices(analysis_dicts):
             for lemma in lemmas_of_subword_dicts(analysis_slice):
