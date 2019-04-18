@@ -19,13 +19,6 @@ import portalocker
 logger = logging.getLogger(__name__)
 
 
-# This lemma is broken in data.noun
-LEMMA_NAME_FIXES = {"moderniusAdditional_synonym": "modernius"}
-
-# These lemmas occur in differently upper/lower case wise in transls and data.POS
-IGNORE_CASE_LEMMAS = {"ci", "otc", "rh-negatiivinen", "rh-positiivinen"}
-
-
 class FinnWordNetResMan(ResourceMan):
     RESOURCE_NAME = "fiwn"
     RELS = ["transls"]
