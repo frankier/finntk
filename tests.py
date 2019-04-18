@@ -2,6 +2,7 @@ import pytest
 from hypothesis import strategies as st, given
 
 from finntk.omor.extract import (
+    extract_lemmas,
     extract_lemmas_combs,
     extract_lemmas_recurs,
     extract_lemmas_span,
@@ -62,6 +63,11 @@ def test_lemmas_recurs(compound, expected_lemmas):
 )
 def test_extract_lemmas_span(form, expected):
     assert extract_lemmas_span(form) == {expected}
+
+
+@pytest.mark.parametrize("brace", [pytest.param("["), pytest.param("]")])
+def test_braces_roundtrip(brace):
+    assert extract_lemmas(brace) == {brace}
 
 
 def fiwn_conceptnet_common_lemmas():

@@ -7,8 +7,10 @@ from itertools import product
 
 
 def analysis_to_pairs(ana):
+    assert ana[0] == "[" and ana[-1] == "]"
+    ana = ana[1:-1]
     for bit in ana.split("]["):
-        k, v = bit.strip("[]").split("=", 1)
+        k, v = bit.split("=", 1)
         yield k, v
 
 
