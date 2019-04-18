@@ -17,6 +17,13 @@ def unexpanded_defn_getter(lemma):
     return word_tokenize(lemma.synset().definition())
 
 
+def synset_expanded_defn_getter(lemma):
+    tokens = []
+    tokens.extend(unexpanded_defn_getter(lemma))
+    tokens.extend((lemma.name() for lemma in lemma.synset().lemmas()))
+    return tokens
+
+
 def expanded_defn_getter(lemma):
     lemma_name = lemma.name()
     synset = lemma.synset()
