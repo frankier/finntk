@@ -11,7 +11,9 @@ from .base import MultilingualVectorSpace, MonoVectorSpaceAdapter
 def none_hstack(*dim_vecs):
     if all(vec is None for dim, vec in dim_vecs):
         return None
-    return np.hstack(vec if vec is not None else np.zeros(dim) for dim, vec in dim_vecs)
+    return np.hstack(
+        [vec if vec is not None else np.zeros(dim) for dim, vec in dim_vecs]
+    )
 
 
 class FastTextNumberbatchMultiSpace(MultilingualVectorSpace):
