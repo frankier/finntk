@@ -99,6 +99,11 @@ class SynsetMapper:
         if self._map_file is None:
             synsets_fn = self.res_man.get_res("synsets")
             self._map_file = open(synsets_fn, "rb")
+
+            def discard_line(self):
+                self.readline()
+
+            self._map_file.discard_line = discard_line
         return self._map_file
 
     def __call__(self, synset_id):
