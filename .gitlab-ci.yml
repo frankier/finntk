@@ -6,8 +6,6 @@ stages:
 
 variables:
   DOCKER_DRIVER: overlay2
-  REQUIREMENTS_IMAGE: $CI_REGISTRY_IMAGE/requirements
-  FULL_IMAGE: $CI_REGISTRY_IMAGE/full
   REQUIREMENTS_DEB_IMAGE: $CI_REGISTRY_IMAGE/requirements-deb
   FULL_DEB_IMAGE: $CI_REGISTRY_IMAGE/full-deb
 
@@ -17,19 +15,6 @@ services:
 before_script:
   - docker info || true
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY || true
-
-build:
-  tags:
-    - dedi
-  stage: build
-  script:
-    - docker pull $FULL_IMAGE:latest || true
-    - docker build --cache-from $FULL_IMAGE:latest -t full -f docker/Dockerfile .
-    - docker tag full $FULL_IMAGE
-    - docker push $FULL_IMAGE
-    - docker build --cache-from $FULL_IMAGE:latest --target requirements -t requirements -f docker/Dockerfile .
-    - docker tag requirements $REQUIREMENTS_IMAGE
-    - docker push $REQUIREMENTS_IMAGE
 
 build:deb:
   tags:
@@ -46,14 +31,14 @@ build:deb:
 
 test:pytest:
   stage: test
-  image: $FULL_IMAGE
+  image: $FULL_DEB_IMAGE
   script:
     - cd /finntk
     - pytest tests.py
 
 test:flake8:
   stage: test
-  image: $FULL_IMAGE
+  image: $FULL_DEB_IMAGE
   script:
     - cd /finntk
     - flake8
