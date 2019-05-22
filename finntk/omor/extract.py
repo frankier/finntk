@@ -2,7 +2,13 @@
 Functions for extracting lemmas from OMorFi analyses.
 """
 from .inst import get_omorfi
-from .anlys import analysis_to_subword_dicts, lemmas_of_subword_dicts
+from .anlys import (
+    analysis_to_subword_dicts,
+    default_lemmatise,
+    lemmas_of_subword_dicts,
+    ext_lemma_feats,
+    true_lemmatise,
+)
 
 
 def contig_slices(elems):
@@ -13,17 +19,36 @@ def contig_slices(elems):
             yield elems[start:end]
 
 
-def _extract_lemmas(word_form, get_slices):
+def iden_func(x):
+    return x
+
+
+def _extract_lemmas(
+    word_form,
+    get_slices,
+    lemmatise_func=default_lemmatise,
+    norm_func=iden_func,
+    return_feats=False,
+):
     omorfi = get_omorfi()
     analyses = omorfi.analyse(word_form)
-    res = set()
+    res = {} if return_feats else set()
     for analysis in analyses:
         if analysis.get("OOV"):
             continue
         analysis_dicts = analysis_to_subword_dicts(analysis["anal"])
         for analysis_slice in get_slices(analysis_dicts):
-            for lemma in lemmas_of_subword_dicts(analysis_slice):
-                res.add(lemma)
+            lemma_feats = lemmas_of_subword_dicts(
+                analysis_slice,
+                lemmatise_func=lemmatise_func,
+                **({"return_feats": True} if return_feats else {})
+            )
+            if return_feats:
+                for lemma, feats in lemma_feats.items():
+                    ext_lemma_feats(res, norm_func(lemma), feats)
+            else:
+                for lemma in lemma_feats:
+                    res.add(norm_func(lemma))
     return res
 
 
@@ -44,6 +69,20 @@ def extract_lemmas_span(word_form):
     it extracts only lemmas which span the whole word form.
     """
     return _extract_lemmas(word_form, lambda analysis_dicts: [analysis_dicts])
+
+
+def extract_true_lemmas_span(word_form, norm_func=iden_func):
+    """
+    Works like `extract_lemmas_span`, but uses `true_lemmatise`. It also
+    returns some of the features associated with each lemma.
+    """
+    return _extract_lemmas(
+        word_form,
+        lambda analysis_dicts: [analysis_dicts],
+        lemmatise_func=true_lemmatise,
+        norm_func=norm_func,
+        return_feats=True,
+    )
 
 
 def extract_lemmas_combs(word_form):
