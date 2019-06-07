@@ -196,3 +196,45 @@ def norm_word_id(word_id):
     if extra_match:
         word_id = word_id[:extra_match.start()]
     return word_id.lower()
+
+
+def yield_get(m, k):
+    res = m.get(k)
+    if res is not None:
+        yield res
+
+
+def normseg(subword_dict):
+    """
+    Generates a normalised segmentation from an OMorFi analysis dict
+    `subword_dict`.
+
+    This function is a work in progress. Currently, it *will* miss out
+    morphemes.
+    """
+    from finntk.data.omorfi_normseg import (
+        MOOD_MAP,
+        TENSE_MAP,
+        PERS_MAP,
+        NUM_MAP,
+        CASE_MAP,
+    )
+
+    for k, v in subword_dict.items():
+        v_lower = v.lower()
+        if k == "word_id":
+            yield norm_word_id(v)
+        elif k in ("drv", "clit"):
+            if v_lower == "mpi":
+                v_lower = "empi"
+            yield "-" + v_lower
+        elif k == "mood":
+            yield from yield_get(MOOD_MAP, v_lower)
+        elif k == "tense":
+            yield from yield_get(TENSE_MAP, v_lower)
+        elif k == "pers":
+            yield from yield_get(PERS_MAP, v_lower)
+        elif k == "num":
+            yield from yield_get(NUM_MAP, v_lower)
+        elif k == "case":
+            yield from yield_get(CASE_MAP.get(v_lower))
