@@ -27,6 +27,8 @@ CASE_NAME_MAP = {
     "acc": None,  # -n / -ut ?
 }
 
-CASE_MAP = {k: CASE_NORMSEG_MAP[p] for k, p in CASE_NAME_MAP if p in CASE_NORMSEG_MAP}
+CASE_MAP = {
+    k: CASE_NORMSEG_MAP[p] for k, p in CASE_NAME_MAP.items() if p in CASE_NORMSEG_MAP
+}
 
 NUM_MAP = {"PL": "-t", "SG": None}
