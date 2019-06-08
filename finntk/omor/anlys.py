@@ -237,4 +237,4 @@ def normseg(subword_dict):
         elif k == "num":
             yield from yield_get(NUM_MAP, v_lower)
         elif k == "case":
-            yield from yield_get(CASE_MAP.get(v_lower))
+            yield from yield_get(CASE_MAP, v_lower)
