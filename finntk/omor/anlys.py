@@ -121,7 +121,7 @@ def true_lemmatise(subword_dict, strict=False, return_feats=False):
     def default_return():
         simple_lemma = simple_lemmatise(subword_dict)
         if return_feats:
-            return {simple_lemma: {}}
+            return {simple_lemma: {()}}
         else:
             return [simple_lemma]
 
@@ -136,10 +136,11 @@ def true_lemmatise(subword_dict, strict=False, return_feats=False):
     ending = None
     feats = {}
     for k, v in subword_dict.items():
-        if k in ("mood", "voice"):
-            ending = "verb"
-        elif k == "num":
-            ending = "noun"
+        if ending is None:
+            if k in ("mood", "voice"):
+                ending = "verb"
+            elif k == "num":
+                ending = "noun"
 
         if ending is not None:
             if not return_feats:
@@ -158,6 +159,12 @@ def true_lemmatise(subword_dict, strict=False, return_feats=False):
         new_subword_dict.update(NOUN_ENDING)
     # XXX: When does this generate multiple? Can we prune down to one?
     generated = generate_dict(new_subword_dict, no_passthrough=True)
+    if not generated:
+        simple_lemma = simple_lemmatise(subword_dict)
+        if return_feats:
+            return {simple_lemma: {tuple(feats.items())}}
+        else:
+            return [simple_lemma]
     if return_feats:
         res = {}
         for gen in generated:
