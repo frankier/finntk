@@ -116,3 +116,11 @@ def test_surf_vec_matches(surf):
 def test_no_extra_lemmas():
     vararengas_lemmas = extract_lemmas_span("vararengas")
     assert "vara_2rengas" not in vararengas_lemmas
+
+
+def test_extract_true_lemmas_span_no_clobber_minen():
+    from finntk.omor.extract import extract_true_lemmas_span
+
+    span_lemmas = extract_true_lemmas_span("tuleminen")
+    assert "tulla" not in span_lemmas
+    assert "tuleminen" in span_lemmas

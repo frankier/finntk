@@ -118,6 +118,12 @@ def true_lemmatise(subword_dict, strict=False, return_feats=False):
     not derivational morphemes.
     """
 
+    def empty_return():
+        if return_feats:
+            return {}
+        else:
+            return []
+
     def default_return():
         simple_lemma = simple_lemmatise(subword_dict)
         if return_feats:
@@ -141,6 +147,9 @@ def true_lemmatise(subword_dict, strict=False, return_feats=False):
                 ending = "verb"
             elif k == "num":
                 ending = "noun"
+            elif k == "inf" and v == "MINEN":
+                # Should always(?) be accompanied by a DRV=MINEN so we should be safe to delete this
+                ending = "blacklisted"
 
         if ending is not None:
             if not return_feats:
@@ -153,6 +162,8 @@ def true_lemmatise(subword_dict, strict=False, return_feats=False):
             assert False, "true_lemmatise in strict mode couldn't determine which ending to add"
         else:
             return default_return()
+    elif ending == "blacklisted":
+        return empty_return()
     elif ending == "verb":
         new_subword_dict.update(VERB_ENDING)
     elif ending == "noun":
