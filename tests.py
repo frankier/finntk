@@ -124,3 +124,14 @@ def test_extract_true_lemmas_span_no_clobber_minen():
     span_lemmas = extract_true_lemmas_span("tuleminen")
     assert "tulla" not in span_lemmas
     assert "tuleminen" in span_lemmas
+
+
+def test_extract_true_lemmas_span_mista():
+    from finntk.omor.extract import extract_true_lemmas_span
+
+    mista_lemmas = extract_true_lemmas_span("mistä")
+    assert "mikä" in mista_lemmas
+    feats = mista_lemmas["mikä"]
+    assert len(feats) >= 1
+    for feat in feats:
+        assert ("case", "ELA") in feat

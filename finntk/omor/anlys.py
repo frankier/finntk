@@ -132,7 +132,7 @@ def true_lemmatise(subword_dict, strict=False, return_feats=False):
             return [simple_lemma]
 
     upos = subword_dict.get("upos")
-    if upos not in ("VERB", "AUX", "NOUN", "PROPN", "ADJ"):
+    if upos not in ("VERB", "AUX", "NOUN", "PROPN", "ADJ", "PRON"):
         if strict:
             assert upos is not None, "no upos found in subword_dict passed to true_lemmatise"
             # As far as I know only verb, noun and adj can have drv
@@ -147,6 +147,8 @@ def true_lemmatise(subword_dict, strict=False, return_feats=False):
                 ending = "verb"
             elif k == "num":
                 ending = "noun"
+            elif k in ("prontype", "subcat"):
+                ending = "pron"
             elif k == "inf" and v == "MINEN":
                 # Should always(?) be accompanied by a DRV=MINEN so we should be safe to delete this
                 # XXX: Should possibly instead do some type of
@@ -168,7 +170,7 @@ def true_lemmatise(subword_dict, strict=False, return_feats=False):
         return empty_return()
     elif ending == "verb":
         new_subword_dict.update(VERB_ENDING)
-    elif ending == "noun":
+    elif ending in ("noun", "pron"):
         new_subword_dict.update(NOUN_ENDING)
     # XXX: When does this generate multiple? Can we prune down to one?
     generated = generate_dict(new_subword_dict, no_passthrough=True)
