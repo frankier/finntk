@@ -149,6 +149,8 @@ def true_lemmatise(subword_dict, strict=False, return_feats=False):
                 ending = "noun"
             elif k == "inf" and v == "MINEN":
                 # Should always(?) be accompanied by a DRV=MINEN so we should be safe to delete this
+                # XXX: Should possibly instead do some type of
+                # dominations/tournaments in extract_true_lemmas_span
                 ending = "blacklisted"
 
         if ending is not None:
