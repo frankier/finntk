@@ -32,10 +32,71 @@ PL_NORMSEG_MAP = {"singular": None, "plural": "-t"}
 
 NOUN_FORM_OF_FIELDS_MAP = {"case": CASE_NORMSEG_MAP, "pl": PL_NORMSEG_MAP}
 
-# TODO
-# VERB_FORM_OF_FIELDS_MAP = {
-# "pr": {},
-# "pl": {},  # XXX: pr and pl need to be considered together really
-# "mood": {},
-# "tense": {},
-# }
+VERB_FORM_OF_FIELDS_MAP = {
+    "mood": {
+        "indicative": None,
+        "conditional": "-isi",
+        "imperative": "(!)",
+        "potential": "-ne",
+        "optative": "-os",
+    },
+    "tense": {"past": "-i", "present": None, "present connegative": "(ei)"},
+    ("pr", "pl"): {  # pr and pl need to be considered together
+        ("first-person", "plural"): "-mme",
+        ("second-person", "plural"): "-tte",
+        ("third-person", "plural"): "-vat",
+        ("impersonal", "plural"): "-taan",
+        ("first-person", "singular"): "-n",
+        ("second-person", "singular"): "-t",
+        ("third-person", "singular"): None,
+        ("impersonal", "singular"): "-taan",
+    },
+    "suffix": None,  # pass through
+}
+
+PARTICIPLES_MAP = {
+    "pres": "-va",
+    "pres_pass": "-ttava",
+    "past": "-nut",
+    "past_pass": "-ttu",
+    "agnt": "-ma",
+    "nega": ("-ma", "-ton"),
+}
+
+FI_INFINITIVE_OF_ABBRVS = {
+    "nom": "nominative",
+    "gen": "genitive",
+    "par": "partitive",
+    "acc": "accusative",
+    "ine": "inessive",
+    "ela": "elative",
+    "ill": "illative",
+    "ade": "adessive",
+    "abl": "ablative",
+    "all": "allative",
+    "ess": "essive",
+    "tra": "translative",
+    "ins": "instructive",
+    "abe": "abessive",
+    "com": "comitative",
+}
+
+FI_INFINITIVES = {
+    "1l": "-ksi",
+    "2a": "-e",
+    "2p": "-tae",
+    "3a": "-ma",
+    "3p": "-tama",
+    "4": "-minen",
+    "5": ("-ma", "-isi"),
+}
+
+FI_INFINITIVE_DEFAULT_CASES = {
+    "1l": "illative",
+    "2a": "inessive",
+    "2p": "inessive",
+    "3a": None,
+    "3p": "instructive",
+    "4": "nominative",
+    "5": "adessive",
+}

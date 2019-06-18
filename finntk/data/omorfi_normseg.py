@@ -1,6 +1,6 @@
 from .wiktionary_normseg import CASE_NORMSEG_MAP
 
-MOOD_MAP = {"COND": "-isi", "IMPV": "!", "POTN": "-ne", "OPT": "-os"}
+MOOD_MAP = {"COND": "-isi", "IMPV": "(!)", "POTN": "-ne", "OPT": "-os"}
 
 TENSE_MAP = {"PAST": "-i", "PRESENT": None}
 
