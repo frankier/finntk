@@ -63,6 +63,8 @@ PARTICIPLES_MAP = {
     "nega": ("-ma", "-ton"),
 }
 
+PARTICIPLES_NORM = {"pres_pasv": "pres_pass", "past_pasv": "past_pass"}
+
 FI_INFINITIVE_OF_ABBRVS = {
     "nom": "nominative",
     "gen": "genitive",
