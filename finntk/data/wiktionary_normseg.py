@@ -65,6 +65,7 @@ PARTICIPLES_MAP = {
 
 PARTICIPLES_NORM = {"pres_pasv": "pres_pass", "past_pasv": "past_pass"}
 
+# XXX: Is this identical to CASE_NAME_MAP in omorfi_normseg?
 FI_INFINITIVE_OF_ABBRVS = {
     "nom": "nominative",
     "gen": "genitive",
