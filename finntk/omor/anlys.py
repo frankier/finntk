@@ -247,8 +247,6 @@ def normseg(subword_dict):
         if k == "word_id":
             yield norm_word_id(v)
         elif k in ("drv", "clit"):
-            if v_lower == "mpi":
-                v_lower = "empi"
             yield "-" + v_lower
         elif k == "mood":
             yield from yield_get(MOOD_MAP, v_lower)

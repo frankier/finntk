@@ -3,7 +3,7 @@ Mappings from terms used on English Wiktionary to normalised morphemes
 """
 
 TEMPLATE_NORMSEG_MAP = {
-    "comparative of": "-empi",
+    "comparative of": "-mpi",
     "superlative of": "-in",
     "agent noun of": "-ja",
     "plural of": "-t",
