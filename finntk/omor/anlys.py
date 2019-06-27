@@ -235,6 +235,7 @@ def normseg(subword_dict):
     morphemes.
     """
     from finntk.data.omorfi_normseg import (
+        INF_MAP,
         MOOD_MAP,
         TENSE_MAP,
         PERS_MAP,
@@ -248,6 +249,8 @@ def normseg(subword_dict):
             yield norm_word_id(v)
         elif k in ("drv", "clit"):
             yield "-" + v_lower
+        elif k == "inf":
+            yield from yield_get(INF_MAP, v_lower)
         elif k == "mood":
             yield from yield_get(MOOD_MAP, v_lower)
         elif k == "tense":

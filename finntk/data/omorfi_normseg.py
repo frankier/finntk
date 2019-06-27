@@ -1,11 +1,11 @@
 from .wiktionary_normseg import CASE_NORMSEG_MAP
 
-MOOD_MAP = {"COND": "-isi", "IMPV": "(!)", "POTN": "-ne", "OPT": "-os"}
+MOOD_MAP = {"cond": "-isi", "impv": "(!)", "potn": "-ne", "opt": "-os"}
 
-TENSE_MAP = {"PAST": "-i", "PRESENT": None}
+TENSE_MAP = {"past": "-i", "present": None}
 
 PERS_MAP = {
-    "PL1": "-mme", "PL2": "-tte", "PL3": "-vat", "SG1": "-n", "SG2": "-t", "SG3": None
+    "pl1": "-mme", "pl2": "-tte", "pl3": "-vat", "sg1": "-n", "sg2": "-t", "sg3": None
 }
 
 CASE_NAME_MAP = {
@@ -27,8 +27,10 @@ CASE_NAME_MAP = {
     "acc": None,  # -n / -ut ?
 }
 
+INF_MAP = {"e": "-e", "ma": "-ma", "minen": "-minen"}
+
 CASE_MAP = {
     k: CASE_NORMSEG_MAP[p] for k, p in CASE_NAME_MAP.items() if p in CASE_NORMSEG_MAP
 }
 
-NUM_MAP = {"PL": "-t", "SG": None}
+NUM_MAP = {"pl": "-t", "sg": None}
