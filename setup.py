@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="finntk",
-    version="0.0.48",
+    version="0.0.49",
     url="https://github.com/frankier/finntk",
     author="Frankie Robertson",
     description="Finnish NLP toolkit",
