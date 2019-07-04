@@ -34,3 +34,5 @@ CASE_MAP = {
 }
 
 NUM_MAP = {"pl": "-t", "sg": None}
+
+POSS_MAP = {"sg1": "-ni", "sg2": "-si", "pl1": "-mme", "pl2": "-nne", "3": "-nsa"}

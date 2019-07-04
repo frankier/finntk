@@ -241,6 +241,7 @@ def normseg(subword_dict):
         PERS_MAP,
         NUM_MAP,
         CASE_MAP,
+        POSS_MAP,
     )
 
     for k, v in subword_dict.items():
@@ -261,3 +262,5 @@ def normseg(subword_dict):
             yield from yield_get(NUM_MAP, v_lower)
         elif k == "case":
             yield from yield_get(CASE_MAP, v_lower)
+        elif k == "poss":
+            yield from yield_get(POSS_MAP, v_lower)
