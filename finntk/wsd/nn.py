@@ -31,6 +31,10 @@ class WordExpertBase:
         return self.ys[index]
 
 
+class OverfilledFixedWordExpert(Exception):
+    pass
+
+
 class FixedWordExpert(WordExpertBase):
     """
     This uses np.float64 because it's what ball_tree uses
@@ -42,7 +46,15 @@ class FixedWordExpert(WordExpertBase):
         self.size = size
         super().__init__()
 
+    def fit(self):
+        self.xs.resize(self.x_idx, self.xs.shape[1])
+        super().fit()
+
     def add_word(self, ctx_vec, sense_key):
+        if self.x_idx > self.size:
+            raise OverfilledFixedWordExpert(
+                f"Trying to add a word to a full FixedWordExpert with capacity: {self.size}"
+            )
         if self.xs is None:
             self.xs = np.ndarray((self.size, ctx_vec.shape[0]), dtype=np.float64)
         self.xs[self.x_idx] = normalize(ctx_vec)
