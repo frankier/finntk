@@ -1,3 +1,4 @@
+from tempfile import TemporaryDirectory
 from finntk.utils import ResourceMan, urlretrieve
 import os
 
@@ -25,11 +26,15 @@ class ConceptNetWiktionaryResMan(ResourceMan):
     def _bootstrap(self, _res=None):
         from plumbum.cmd import gunzip
 
-        en_wiktionary_gz = urlretrieve(self.URL)
+        tempdir = TemporaryDirectory()
+        en_wiktionary_gz = urlretrieve(
+            self.URL, filename=os.path.join(tempdir.name, "enwiktionary.gz")
+        )
         try:
             gunzip(en_wiktionary_gz, LEMMA_FILENAME)
         finally:
             os.remove(en_wiktionary_gz)
+            tempdir.cleanup()
         self._cached_is_bootstrapped = True
 
 
