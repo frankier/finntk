@@ -2,15 +2,15 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import wordnet
 from finntk.emb.base import BothVectorSpaceAdapter, MonoVectorSpaceAdapter
 from finntk.emb.utils import apply_vec
-from finntk.vendor.metanl.nltk_morphy import tag_and_stem
+from finntk.conceptnet5 import lemmatize_en
 from finntk.wordnet.reader import fiwn
 from itertools import repeat
 
 
 def lemmatize_tokens(tokens):
-    # TODO: Consider switching to ConceptNet5 or Stanford taggger for lemmatization
+    # TODO: Consider switching to using NLTK's or Stanford's taggger as part of lemmatization
     # TODO: Consider not doing lemmatization at all and just relying on glosswordnet
-    return (stem for (stem, _, _) in tag_and_stem(tokens))
+    return (lemmatize_en(token)[0] for token in tokens)
 
 
 def unexpanded_defn_getter(lemma):

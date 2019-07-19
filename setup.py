@@ -22,6 +22,7 @@ setuptools.setup(
         "portalocker>=1.2.1",
         "scikit-learn>=0.19.2",
         "wordfreq>=2.2.0",
+        "ConceptNet>=5.7.0",
     ],
     extras_require={
         "docs": [
