@@ -26,18 +26,23 @@ class LeskPP:
         for idx, (lemma_str, lemmas) in enumerate(sent_lemmas):
             if exclude_idx is not None and idx == exclude_idx:
                 continue
-            words.append(lemma_str)
+            vec_appended = False
             if len(lemmas) == 1:
                 try:
                     vecs.append(mk_lemma_vec(lemmas[0]))
                 except KeyError:
                     pass
                 else:
-                    continue
-            try:
-                vecs.append(fiwn_space.get_vector(lemma_str))
-            except KeyError:
-                pass
+                    vec_appended = True
+            if not vec_appended:
+                try:
+                    vecs.append(fiwn_space.get_vector(lemma_str))
+                except KeyError:
+                    pass
+                else:
+                    vec_appended = True
+            if vec_appended:
+                words.append(lemma_str)
 
         if not vecs:
             return
