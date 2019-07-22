@@ -22,7 +22,6 @@ setuptools.setup(
         "portalocker>=1.2.1",
         "scikit-learn>=0.19.2",
         "wordfreq>=2.2.0",
-        "ConceptNet>=5.7.0",
     ],
     extras_require={
         "docs": [
@@ -45,6 +44,7 @@ setuptools.setup(
             "torch>=1.0.0",
             "pytorch_pretrained_bert",
         ],
+        "conceptnet5": ["ConceptNet>=5.7.0"],
     },
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
