@@ -2,15 +2,9 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import wordnet
 from finntk.emb.base import BothVectorSpaceAdapter, MonoVectorSpaceAdapter
 from finntk.emb.utils import apply_vec
-from finntk.conceptnet5 import lemmatize_en
+from finntk.lemmatize_en import default_lemmatize_en
 from finntk.wordnet.reader import fiwn
 from itertools import repeat
-
-
-def lemmatize_tokens(tokens):
-    # TODO: Consider switching to using NLTK's or Stanford's taggger as part of lemmatization
-    # TODO: Consider not doing lemmatization at all and just relying on glosswordnet
-    return (lemmatize_en(token)[0] for token in tokens)
 
 
 def unexpanded_defn_getter(lemma):
@@ -126,7 +120,8 @@ class MultilingualLesk:
         else:
             defn_tokens = unexpanded_defn_getter(item)
 
-        lemmatized = lemmatize_tokens(defn_tokens)
+        # TODO: Consider not doing lemmatization at all and just relying on glosswordnet
+        lemmatized = default_lemmatize_en(defn_tokens)
         stream = zip(defn_tokens, lemmatized)
         if self.wn_filter:
             stream = wn_filter_stream(wordnet, stream)

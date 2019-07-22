@@ -39,10 +39,3 @@ class ConceptNetWiktionaryResMan(ResourceMan):
 
 
 conceptnet_wiktionary = ConceptNetWiktionaryResMan()
-
-
-def lemmatize_en(token):
-    from conceptnet5.language.lemmatize import lemmatize
-
-    conceptnet_wiktionary.bootstrap()
-    return lemmatize("en", token)
