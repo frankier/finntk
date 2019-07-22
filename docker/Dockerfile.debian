@@ -58,4 +58,4 @@ RUN cd /finntk && pip3 install --no-cache-dir -e .\[dev,gpu\]
 RUN cd /finntk && python /finntk/finntk/scripts/bootstrap_all.py
 
 # Install WordNet
-RUN python3 -c "from nltk import download as d; d('wordnet'); d('omw'); d('punkt')"
+RUN python3 -c "from nltk import download as d; d('wordnet'); d('omw'); d('punkt'); d('averaged_perceptron_tagger')"
