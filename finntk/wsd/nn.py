@@ -93,7 +93,7 @@ class WordExpertManager:
         if not self.allow_overwrites and exists(expert_path):
             raise ExpertExists(f"Not overwriting existing word expert: {expert_path}")
         with open(expert_path, "wb") as outf:
-            pickle.dump(expert, outf)
+            pickle.dump(expert, outf, protocol=4)
 
     def load_expert(self, word):
         expert_path = self._expert_path(word)
