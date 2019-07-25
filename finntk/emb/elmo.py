@@ -1,4 +1,4 @@
-import tarfile
+import zipfile
 import logging
 from finntk.utils import ResourceMan, urlretrieve
 import os
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class ElmoWordVecs(ResourceMan):
     RESOURCE_NAME = "elmo-fi"
 
-    URL = "http://pbmpb9h15.bkt.gdipper.com/fi.model.tar.xz"
+    URL = "http://vectors.nlpl.eu/repository/11/149.zip"
 
     def __init__(self):
         super().__init__()
@@ -20,12 +20,12 @@ class ElmoWordVecs(ResourceMan):
 
     def _bootstrap(self, res):
         logger.info("Downloading Elmo word vectors")
-        tarred_tmp_fn = urlretrieve(self.URL)
+        zipped_tmp_fn = urlretrieve(self.URL)
         try:
-            tmp_tar = tarfile.open(tarred_tmp_fn, "r:xz")
-            tmp_tar.extractall(self.get_res(""))
+            tmp_zip = zipfile.ZipFile(zipped_tmp_fn)
+            tmp_zip.extractall(self.get_res(""))
         finally:
-            os.remove(tarred_tmp_fn)
+            os.remove(zipped_tmp_fn)
 
     def get(self):
         from finntk.vendor.elmo import get_elmo
