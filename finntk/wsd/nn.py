@@ -50,7 +50,7 @@ class FixedWordExpert(WordExpertBase):
         if self.xs is not None:
             self.xs.resize(self.x_idx, self.xs.shape[1])
         else:
-            self.xs = []
+            self.xs = [[]]
         super().fit()
 
     def add_word(self, ctx_vec, sense_key):
