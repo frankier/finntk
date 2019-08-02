@@ -3,6 +3,10 @@ import numpy as np
 from os import makedirs
 from os.path import join as pjoin, exists
 import pickle
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 def normalize(vec):
@@ -95,12 +99,16 @@ class WordExpertManager:
         expert_path = self._expert_path(word)
         if not self.allow_overwrites and exists(expert_path):
             raise ExpertExists(f"Not overwriting existing word expert: {expert_path}")
+        logger.debug(f"Dumping word expert {word}; {expert} to {expert_path}")
         with open(expert_path, "wb") as outf:
             pickle.dump(expert, outf, protocol=4)
+        logger.debug("Dumped")
 
     def load_expert(self, word):
         expert_path = self._expert_path(word)
+        logger.debug(f"Loading {word} from {expert_path}")
         if not exists(expert_path):
+            logger.debug("(doesn't exist)")
             return
         with open(expert_path, "rb") as inf:
             return pickle.load(inf)
