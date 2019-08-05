@@ -210,7 +210,9 @@ def embed_sentences(tok_model, sents, output_layer=-1, batch_size=64, max_seq_le
         input_mask = input_mask.to(model.device)
 
         all_encoder_layers, _ = model(input_ids, token_type_ids=None, attention_mask=input_mask)
-        all_encoder_layers_np = numpy.stack((layer.detach().cpu().numpy() for layer in all_encoder_layers))
+        all_encoder_layers_np = numpy.empty((len(all_encoder_layers),) + all_encoder_layers[0].shape, numpy.float32)
+        for layer_idx, layer in enumerate(all_encoder_layers):
+            all_encoder_layers_np[layer_idx] = layer.detach().cpu().numpy()
 
         for b, example_index in enumerate(example_indices):
             feature = features[example_index.item()]
