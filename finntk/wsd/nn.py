@@ -11,6 +11,8 @@ logger = logging.getLogger(__name__)
 
 def normalize(vec):
     vec_norm = np.linalg.norm(vec)
+    if not np.nonzero(vec_norm):
+        return None
     return vec / vec_norm
 
 
@@ -62,9 +64,13 @@ class FixedWordExpert(WordExpertBase):
             raise OverfilledFixedWordExpert(
                 f"Trying to add a word to a full FixedWordExpert with capacity: {self.size}"
             )
+        normed = normalize(ctx_vec)
+        if normed is None:
+            # Actually don't add it
+            return
         if self.xs is None:
             self.xs = np.ndarray((self.size, ctx_vec.shape[0]), dtype=np.float64)
-        self.xs[self.x_idx] = normalize(ctx_vec)
+        self.xs[self.x_idx] = normed
         self.x_idx += 1
         super().add_word(ctx_vec, sense_key)
 
@@ -76,7 +82,11 @@ class VarWordExpert(WordExpertBase):
         super().__init__()
 
     def add_word(self, ctx_vec, sense_key):
-        self.xs.append(normalize(ctx_vec))
+        normed = normalize(ctx_vec)
+        if normed is None:
+            # Actually don't add it
+            return
+        self.xs.append(normed)
         super().add_word(ctx_vec, sense_key)
 
 
