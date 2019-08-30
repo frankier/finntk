@@ -264,3 +264,46 @@ def normseg(subword_dict):
             yield from yield_get(CASE_MAP, v_lower)
         elif k == "poss":
             yield from yield_get(POSS_MAP, v_lower)
+
+
+def ud_to_omor(lemma, pos, feats):
+    from finntk.data.omorfi_ud import (
+        PASSTHROUGHS,
+        PASSTHROUGHS_KEY_MAP,
+        NUM_KEY_MAP,
+        NUM_VAL_MAP,
+        TENSE_MAP,
+        MOOD_MAP,
+        VOICE_MAP,
+        PART_FORM_MAP,
+        INF_FORM_MAP,
+    )
+
+    res = {"WORD_ID": lemma.replace("#", ""), "UPOS": pos}
+    for k, v in (feats or {}).items():
+        k_upper = k.upper()
+        v_upper = v.upper()
+        if k_upper in PASSTHROUGHS:
+            res[k_upper] = v_upper
+        elif k in PASSTHROUGHS_KEY_MAP:
+            res[PASSTHROUGHS_KEY_MAP[k]] = v_upper
+        elif k in NUM_KEY_MAP:
+            mapped_v = NUM_VAL_MAP[v]
+            if pos == "VERB":
+                res[NUM_KEY_MAP[k]] = mapped_v
+            else:
+                res["NUM"] = mapped_v
+        elif k == "Tense":
+            res["TENSE"] = TENSE_MAP[v]
+        elif k == "Mood":
+            res["MOOD"] = MOOD_MAP.get(v, v.upper())
+        elif k == "Voice":
+            res["VOICE"] = VOICE_MAP.get(v, v.upper())
+        elif k == "VerbForm":
+            # Ignore?
+            pass
+        elif k == "PartForm":
+            res["PCP"] = PART_FORM_MAP[v]
+        elif k == "InfForm":
+            res["INF"] = INF_FORM_MAP[v]
+    return res
