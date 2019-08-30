@@ -18,15 +18,16 @@ def normalize(vec):
 
 class WordExpertBase:
 
-    def __init__(self):
+    def __init__(self, algorithm="ball_tree"):
         self.ys = []
         self.clf = None
+        self.algorithm = algorithm
 
     def add_word(self, ctx_vec, sense_key):
         self.ys.append(sense_key)
 
     def fit(self):
-        clf = NearestNeighbors(n_neighbors=1, algorithm="ball_tree")
+        clf = NearestNeighbors(n_neighbors=1, algorithm=self.algorithm)
         clf.fit(self.xs, self.ys)
         self.clf = clf
         del self.xs
@@ -46,11 +47,11 @@ class FixedWordExpert(WordExpertBase):
     This uses np.float64 because it's what ball_tree uses
     """
 
-    def __init__(self, size):
+    def __init__(self, size, algorithm="ball_tree"):
         self.xs = None
         self.x_idx = 0
         self.size = size
-        super().__init__()
+        super().__init__(algorithm=algorithm)
 
     def fit(self):
         if self.xs is not None:
@@ -77,9 +78,9 @@ class FixedWordExpert(WordExpertBase):
 
 class VarWordExpert(WordExpertBase):
 
-    def __init__(self):
+    def __init__(self, algorithm="ball_tree"):
         self.xs = []
-        super().__init__()
+        super().__init__(algorithm=algorithm)
 
     def add_word(self, ctx_vec, sense_key):
         normed = normalize(ctx_vec)
