@@ -17,9 +17,9 @@ def power_mean_inner(p, mat, axis=0, dtype=None):
 
 def power_mean(p, mat, dtype=None):
     if p == float("inf"):
-        return mat.max(axis=0, dtype=dtype)
+        return mat.max(axis=0, out=np.ndarray(shape=mat.shape[1], dtype=np.float32))
     elif p == float("-inf"):
-        return mat.min(axis=0, dtype=dtype)
+        return mat.min(axis=0, out=np.ndarray(shape=mat.shape[1], dtype=np.float32))
     elif p == 1:
         return mat.mean(axis=0, dtype=dtype)
     else:
