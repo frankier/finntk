@@ -6,13 +6,11 @@ from numpy.ma import size
 
 
 def power_mean_inner(p, mat, axis=0, dtype=None):
-    mat_cmplx = mat.astype(np.complex128)
+    mat_cmplx = mat.astype(np.complex64 if dtype == np.float32 else np.complex128)
     result_cmplx = np.power(
-        (np.power(mat_cmplx, p)).sum(axis=axis, dtype=dtype)
-        / size(mat_cmplx, axis=axis),
-        1 / p,
+        (np.power(mat_cmplx, p)).sum(axis=axis) / size(mat_cmplx, axis=axis), 1 / p
     )
-    return result_cmplx.real.astype(np.float_)
+    return result_cmplx.real.astype(dtype)
 
 
 def power_mean(p, mat, dtype=None):
