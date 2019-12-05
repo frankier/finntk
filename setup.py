@@ -20,7 +20,7 @@ setuptools.setup(
         # Dependency of gensim - earlier versions can resolution problems
         "smart_open>=1.7.1",
         "portalocker>=1.2.1",
-        "scikit-learn>=0.19.2",
+        "scikit-learn>=0.22.0",
         "wordfreq>=2.2.0",
     ],
     extras_require={
