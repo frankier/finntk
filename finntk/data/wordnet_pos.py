@@ -14,3 +14,10 @@ POS_MAP = {
     "a": ["Adjective", "Number", "Numeral", "Participle", "Ordinal number"],
     "r": ["Adverb"],
 }
+
+UD_POS_MAP = {
+    "v": ["VERB", "AUX"],
+    "n": ["NOUN", "PROPN", "SYM", "PRON"],
+    "a": ["ADJ", "NUM"],
+    "r": ["ADV", "ADP"],
+}
