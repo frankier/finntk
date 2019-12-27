@@ -51,7 +51,6 @@ VERB_FORM_OF_FIELDS_MAP = {
         ("third-person", "singular"): None,
         ("impersonal", "singular"): "-taan",
     },
-    "suffix": None,  # pass through
 }
 
 PARTICIPLES_MAP = {
