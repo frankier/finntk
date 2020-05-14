@@ -11,8 +11,8 @@ RUN apt-get update && apt-get install -y \
         python3-dev python3.7-dev build-essential libffi-dev \
     # Build requirements for HFST + Omorfi
         git autoconf automake libtool file zip \
-    # Build requirements for HFST
-        flex bison libglib2.0-0 libglib2.0-dev swig \
+    # HFST
+        hfst libhfst libhfst-dev python3-libhfst \
     # Build requirements for FinnPOS
         clang wget \
  && rm -rf /var/lib/apt/lists/*
@@ -22,15 +22,6 @@ RUN pip3 install pipenv
 
 # Fixup Python
 RUN ln -sf /usr/bin/python3.7 /usr/bin/python
-
-# Install HFST
-COPY docker/install-hfst.sh /install-hfst.sh
-RUN ./install-hfst.sh python
-RUN rm -rf /hfst
-RUN ldconfig
-
-# Build requirements for Omorfi
-#RUN pip3 install hfst
 
 # Install Omorfi
 COPY docker/install-omorfi.sh /install-omorfi.sh
