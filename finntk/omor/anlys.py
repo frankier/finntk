@@ -266,7 +266,7 @@ def normseg(subword_dict):
             yield from yield_get(POSS_MAP, v_lower)
 
 
-def ud_to_omor(lemma, pos, feats):
+def ud_to_omor(lemma, pos, feats=None):
     from finntk.data.omorfi_ud import (
         PASSTHROUGHS,
         PASSTHROUGHS_KEY_MAP,
@@ -278,9 +278,12 @@ def ud_to_omor(lemma, pos, feats):
         PART_FORM_MAP,
         INF_FORM_MAP,
     )
+    pos = pos.upper()
+    if feats is None:
+        feats = {}
 
     res = {"WORD_ID": lemma.replace("#", ""), "UPOS": pos}
-    for k, v in (feats or {}).items():
+    for k, v in feats.items():
         k_upper = k.upper()
         v_upper = v.upper()
         if k_upper in PASSTHROUGHS:
@@ -306,4 +309,8 @@ def ud_to_omor(lemma, pos, feats):
             res["PCP"] = PART_FORM_MAP[v]
         elif k == "InfForm":
             res["INF"] = INF_FORM_MAP[v]
+    if pos == "VERB" and "Number" in feats and "Person" in feats:
+        pers = feats.pop("Person")
+        mapped_num = NUM_VAL_MAP[feats.pop("Number")]
+        res["PERS"] = mapped_num + pers
     return res
