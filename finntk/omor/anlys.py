@@ -54,7 +54,7 @@ def generate_dict(ana):
         del ana_cp["weight"]
     ana_txt = dict_to_analysis(ana_cp)
     generated = omor.generate(ana_txt)
-    if generated is None:
+    if not generated:
         return set()
     return set(generated.split("/"))
 
