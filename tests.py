@@ -1,5 +1,5 @@
 import pytest
-from hypothesis import strategies as st, given
+from hypothesis import strategies as st, given, settings
 
 from finntk.omor.extract import (
     extract_lemmas,
@@ -79,7 +79,7 @@ def fiwn_conceptnet_common_lemmas():
     def fi_lemmas():
         for entity in vecs.index2entity:
             if entity.startswith(CONCEPTNET_FI):
-                yield entity[len(CONCEPTNET_FI):]
+                yield entity[len(CONCEPTNET_FI) :]
 
     return intersect(fiwn.all_lemma_names(), fi_lemmas())
 
@@ -89,6 +89,7 @@ fiwn_conceptnet_common_lemmas_300 = [
 ]
 
 
+@settings(deadline=None)
 @given(st.sampled_from(fiwn_conceptnet_common_lemmas_300))
 def test_get_lemma_vec(lemma_name):
     from finntk.emb.autoextend import mk_lemma_vec
