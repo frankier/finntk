@@ -5,7 +5,6 @@ repos:
     - id: black
       exclude: finntk/vendor
       args: []
-      python_version: python3.6
 -   repo: git://github.com/pre-commit/pre-commit-hooks
     rev: master
     hooks:
