@@ -1,7 +1,6 @@
 set -ex
-git clone https://github.com/frankier/omorfi.git
+git clone --depth 1 https://github.com/frankier/omorfi.git --branch rm-homonym-num --single-branch
 cd omorfi
-git checkout rm-homonym-num
 ./autogen.sh
 ./configure --enable-labeled-segments --enable-segmenter --enable-hyphenator --enable-lemmatiser --without-java
 make
