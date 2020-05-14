@@ -24,6 +24,8 @@ CASE_NORMSEG_MAP = {
     "instructive": "-in",
     "abessive": "-tta",
     "comitative": "-ine",
+    "lative": "-s",
+    "accusative": "-ut",
 }
 
 PL_CASES = {"instructive", "comitative"}

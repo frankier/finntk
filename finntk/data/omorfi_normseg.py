@@ -23,8 +23,8 @@ CASE_NAME_MAP = {
     "nom": "nominative",
     "par": "partitive",
     "tra": "translative",
-    "lat": None,  # "-s"?
-    "acc": None,  # -n / -ut ?
+    "lat": "lative",  # "-s"?
+    "acc": "accusative",  # -n / -ut ?
 }
 
 INF_MAP = {"e": "-e", "ma": "-ma", "minen": "-minen"}
