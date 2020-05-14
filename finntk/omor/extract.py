@@ -34,9 +34,9 @@ def _extract_lemmas(
     analyses = omorfi.analyse(word_form)
     res = {} if return_feats else set()
     for analysis in analyses:
-        if analysis.get("OOV"):
+        if analysis.is_oov():
             continue
-        analysis_dicts = analysis_to_subword_dicts(analysis["anal"])
+        analysis_dicts = analysis_to_subword_dicts(analysis.raw)
         for analysis_slice in get_slices(analysis_dicts):
             lemma_feats = lemmas_of_subword_dicts(
                 analysis_slice,

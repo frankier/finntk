@@ -45,7 +45,7 @@ def analysis_to_subword_dicts(ana):
     return map(pairs_to_dict, chunk_subwords(analysis_to_pairs(ana)))
 
 
-def generate_dict(ana, no_passthrough=False):
+def generate_dict(ana):
     from .inst import get_omorfi
 
     omor = get_omorfi()
@@ -53,18 +53,14 @@ def generate_dict(ana, no_passthrough=False):
     if "weight" in ana_cp:
         del ana_cp["weight"]
     ana_txt = dict_to_analysis(ana_cp)
-    return {
-        gen["surf"]
-        for gen in omor.generate(ana_txt)
-        if not (no_passthrough and gen.get("genweight") == float("inf"))
-    }
+    generated = omor.generate(ana_txt)
+    if generated is None:
+        return set()
+    return set(generated.split("/"))
 
 
 def generate_or_passthrough(ana):
-    return {
-        norm_word_id(ana["word_id"]) if s.startswith("[") else s
-        for s in generate_dict(ana)
-    }
+    return generate_dict(ana) or {norm_word_id(ana["word_id"])}
 
 
 def simple_lemmatise(subword_dict):
@@ -173,7 +169,7 @@ def true_lemmatise(subword_dict, strict=False, return_feats=False):
     elif ending in ("noun", "pron"):
         new_subword_dict.update(NOUN_ENDING)
     # XXX: When does this generate multiple? Can we prune down to one?
-    generated = generate_dict(new_subword_dict, no_passthrough=True)
+    generated = generate_dict(new_subword_dict)
     if not generated:
         simple_lemma = simple_lemmatise(subword_dict)
         if return_feats:
