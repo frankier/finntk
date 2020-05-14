@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 
 
 class LeskPP:
-
     def __init__(self, multispace, aggf, wn_filter=False, expand=False):
         self.multispace = multispace
         self.aggf = aggf
@@ -57,7 +56,7 @@ class LeskPP:
             logger.debug(f"Got vecs: {vecs}")
 
         if not vecs:
-            logger.debug(f"Early return!")
+            logger.debug("Early return!")
             return
         mat = np.stack(vecs)
         logger.debug(f"Mat: {mat}")

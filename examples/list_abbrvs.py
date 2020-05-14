@@ -12,13 +12,13 @@ from finntk.data.wordnet import ALL_ABBRVS
 )
 def main(output):
     pronouns = {}
-    for l in wordnet.all_lemma_names(lang="fin"):
-        if "_" not in l:
+    for lemma in wordnet.all_lemma_names(lang="fin"):
+        if "_" not in lemma:
             continue
-        for b in l.split("_"):
+        for b in lemma.split("_"):
             if b not in ALL_ABBRVS:
                 continue
-            pronouns.setdefault(b, []).append(l)
+            pronouns.setdefault(b, []).append(lemma)
     if output == "group":
         for p, v in sorted(pronouns.items()):
             print(p, v)
@@ -26,7 +26,7 @@ def main(output):
         for p, v in sorted(pronouns.items()):
             print(p)
     elif output == "pron":
-        for v in sorted((v for l in pronouns.values() for v in l)):
+        for v in sorted((v for lemma in pronouns.values() for v in lemma)):
             print(v)
 
 

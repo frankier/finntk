@@ -53,7 +53,7 @@ def expanded_defn_getter(lemma):
         elif relation == "Similar to":
             related_synsets.update(synset.similar_tos())
         elif relation == "Pertainym of":
-            related_synsets.update((l.synset() for l in lemma.pertainyms()))
+            related_synsets.update((lemma.synset() for lemma in lemma.pertainyms()))
         else:
             assert False, "Unknown relation"
     tokens = []
@@ -100,7 +100,6 @@ def wn_filter_stream(wn, stream):
 
 
 class MultilingualLesk:
-
     def __init__(self, multispace, aggf, wn_filter=False, expand=False, use_freq=False):
         self.multispace = multispace
         self.defn_space = BothVectorSpaceAdapter(
