@@ -60,7 +60,6 @@ vecs = AutoExtendNumberBatchFiWNWordVecs()
 
 @total_ordering
 class AsKey(object):
-
     def __init__(self, obj, key_func):
         self.obj = obj
         self.obj_key = key_func(obj)
@@ -89,7 +88,6 @@ def synset_map_key(line):
 
 
 class SynsetMapper:
-
     def __init__(self, res_man):
         self.res_man = res_man
         self._map_file = None
@@ -100,8 +98,8 @@ class SynsetMapper:
             synsets_fn = self.res_man.get_res("synsets")
             self._map_file = open(synsets_fn, "rb")
 
-            def discard_line(self):
-                self.readline()
+            def discard_line():
+                self._map_file.readline()
 
             self._map_file.discard_line = discard_line
         return self._map_file
