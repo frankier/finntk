@@ -4,8 +4,8 @@ import logging
 from functools import total_ordering
 from finntk.utils import ResourceMan, urlretrieve
 from finntk.wordnet.reader import fiwn
-from gensim.models import KeyedVectors
 from shutil import copyfileobj
+from .utils import get_tmpfile, load_word2vec_format, load
 import os
 
 logger = logging.getLogger(__name__)
@@ -26,8 +26,6 @@ class AutoExtendNumberBatchFiWNWordVecs(ResourceMan):
         self._vecs = None
 
     def _bootstrap(self, res):
-        from gensim.test.utils import get_tmpfile
-
         logger.info("Downloading FiWN ConceptNet word vectors")
         zipped_tmp_fn = urlretrieve(self.URL)
         try:
@@ -36,7 +34,7 @@ class AutoExtendNumberBatchFiWNWordVecs(ResourceMan):
             try:
                 copyfileobj(tmp_zip.open("outputVectors.txt"), open(tmp_fn, "wb"))
                 logger.info("Converting FiWN ConceptNet word vectors")
-                fi = KeyedVectors.load_word2vec_format(tmp_fn)
+                fi = load_word2vec_format(tmp_fn)
                 fi.save(self._get_res_path("vecs"))
             finally:
                 os.remove(tmp_fn)
@@ -50,7 +48,7 @@ class AutoExtendNumberBatchFiWNWordVecs(ResourceMan):
         if self._vecs is None:
             vec_path = self.get_res("vecs")
             logger.info("Loading word vectors")
-            self._vecs = KeyedVectors.load(vec_path, mmap="r")
+            self._vecs = load(vec_path, mmap="r")
             logger.info("Loaded word vectors")
         return self._vecs
 

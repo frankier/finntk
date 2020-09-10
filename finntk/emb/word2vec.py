@@ -1,11 +1,10 @@
 import logging
 from finntk.utils import ResourceMan, urlretrieve
-from gensim.models import KeyedVectors
 from shutil import copyfileobj
 import os
 import zipfile
 from .base import MonolingualVectorSpace, RefType
-from .utils import get
+from .utils import get, get_tmpfile, load_word2vec_format, load
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +20,6 @@ class Word2VecWordVecs(ResourceMan):
         self._vecs = None
 
     def _bootstrap(self, res):
-        from gensim.test.utils import get_tmpfile
-
         logger.info("Downloading Word2Vec word vectors")
         zipped_tmp_fn = urlretrieve(self.URL)
         try:
@@ -31,7 +28,7 @@ class Word2VecWordVecs(ResourceMan):
             try:
                 copyfileobj(tmp_zip.open("model.txt"), open(tmp_fn, "wb"))
                 logger.info("Converting Word2Vec word vectors")
-                fi = KeyedVectors.load_word2vec_format(tmp_fn, unicode_errors="replace")
+                fi = load_word2vec_format(tmp_fn, unicode_errors="replace")
                 fi.save(self._get_res_path("vecs"))
             finally:
                 os.remove(tmp_fn)
@@ -42,7 +39,7 @@ class Word2VecWordVecs(ResourceMan):
         if self._vecs is None:
             vec_path = self.get_res("vecs")
             logger.info("Loading word vectors")
-            self._vecs = KeyedVectors.load(vec_path, mmap="r")
+            self._vecs = load(vec_path, mmap="r")
             logger.info("Loaded word vectors")
         return self._vecs
 

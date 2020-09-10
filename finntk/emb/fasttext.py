@@ -1,9 +1,8 @@
 import logging
 from finntk.utils import ResourceMan, urlretrieve
-from gensim.models import KeyedVectors
 import os
 from .base import MultilingualVectorSpace, RefType
-from .utils import get
+from .utils import get, load_word2vec_format, load
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +25,7 @@ class FasttextWordVecs(ResourceMan):
         tmp_fn = urlretrieve(url)
         try:
             logger.info("Converting {} word vectors".format(lang))
-            fi = KeyedVectors.load_word2vec_format(tmp_fn)
+            fi = load_word2vec_format(tmp_fn)
             fi.save(dest)
         finally:
             os.remove(tmp_fn)
@@ -39,7 +38,7 @@ class FasttextWordVecs(ResourceMan):
         if self._en is None:
             en_vec_path = self.get_res("en_vec")
             logger.info("Loading English word vectors")
-            self._en = KeyedVectors.load(en_vec_path, mmap="r")
+            self._en = load(en_vec_path, mmap="r")
             logger.info("Loaded English word vectors")
         return self._en
 
@@ -47,7 +46,7 @@ class FasttextWordVecs(ResourceMan):
         if self._fi is None:
             fi_vec_path = self.get_res("fi_vec")
             logger.info("Loading Finnish word vectors")
-            self._fi = KeyedVectors.load(fi_vec_path, mmap="r")
+            self._fi = load(fi_vec_path, mmap="r")
             logger.info("Loaded Finnish word vectors")
         return self._fi
 

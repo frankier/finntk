@@ -16,7 +16,6 @@ setuptools.setup(
         "appdirs>=1.4.3",
         "plumbum>=1.6.6",
         "nltk>=3.3",
-        "gensim>=3.4.0",
         "portalocker>=1.2.1",
         "scikit-learn>=0.22.0",
         "wordfreq>=2.2.0",
@@ -42,6 +41,9 @@ setuptools.setup(
             "torch>=1.0.0",
             "pytorch_pretrained_bert",
         ],
+        "emb": [
+            "gensim>=3.4.0",
+        ],
         "conceptnet5": ["ConceptNet>=5.7.0"],
     },
     classifiers=[
@@ -49,5 +51,6 @@ setuptools.setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
     ],
 )

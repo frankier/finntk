@@ -2,11 +2,10 @@ import gzip
 import logging
 from finntk.utils import ResourceMan, urlretrieve
 from finntk.vendor.conceptnet5.uri import concept_uri
-from gensim.models import KeyedVectors
 from shutil import copyfileobj
 import os
 from .base import MultilingualVectorSpace, RefType
-from .utils import get
+from .utils import get, get_tmpfile, load_word2vec_format, load
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +24,6 @@ class NumberbatchWordVecs(ResourceMan):
         self._vecs = None
 
     def _bootstrap(self, _res):
-        from gensim.test.utils import get_tmpfile
-
         logger.info("Downloading word vectors")
         gzipped_glove_tmp_fn = urlretrieve(self.URL)
         try:
@@ -34,7 +31,7 @@ class NumberbatchWordVecs(ResourceMan):
             try:
                 copyfileobj(gzip.open(gzipped_glove_tmp_fn), open(glove_tmp_fn, "wb"))
                 logger.info("Converting word vectors")
-                fi = KeyedVectors.load_word2vec_format(glove_tmp_fn)
+                fi = load_word2vec_format(glove_tmp_fn)
                 fi.save(self._get_res_path("vecs"))
             finally:
                 try:
@@ -51,7 +48,7 @@ class NumberbatchWordVecs(ResourceMan):
         if self._vecs is None:
             vec_path = self.get_res("vecs")
             logger.info("Loading word vectors")
-            self._vecs = KeyedVectors.load(vec_path, mmap="r")
+            self._vecs = load(vec_path, mmap="r")
             logger.info("Loaded word vectors")
         return self._vecs
 

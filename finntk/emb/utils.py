@@ -94,7 +94,6 @@ pre_sif_mean.needs_words = True
 
 
 def mk_sif_mean(pc):
-
     def sif_mean(mat, refs, lang, dtype=None):
         emb = pre_sif_mean(mat, refs, lang, dtype=dtype)
         return emb - emb.dot(pc) * pc
@@ -133,3 +132,21 @@ def get(space, ref):
         return space.get_vector(ref)
     except KeyError:
         pass
+
+
+def load_word2vec_format(*args, **kwargs):
+    from gensim.models import KeyedVectors
+
+    return KeyedVectors.load_word2vec_format(*args, **kwargs)
+
+
+def load(*args, **kwargs):
+    from gensim.models import KeyedVectors
+
+    return KeyedVectors.load(*args, **kwargs)
+
+
+def get_tmpfile(*args, **kwargs):
+    from gensim.test.utils import get_tmpfile
+
+    return get_tmpfile(*args, **kwargs)
