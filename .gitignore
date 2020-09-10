@@ -6,3 +6,5 @@ __pycache__/
 /finntk.egg-info/
 /build/
 /.hypothesis/
+/.mypy_cache/
+/.vscode/
