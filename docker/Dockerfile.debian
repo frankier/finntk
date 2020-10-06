@@ -45,7 +45,7 @@ RUN echo "/usr/local/lib/python3.7/site-packages/" > "/usr/local/lib/python3.7/d
 FROM requirements as full
 
 COPY . /finntk
-RUN cd /finntk && pip3 install --no-cache-dir -e .\[dev,gpu\]
+RUN cd /finntk && pip3 install --no-cache-dir -e .\[dev,gpu,emb,conceptnet5\]
 RUN cd /finntk && python /finntk/finntk/scripts/bootstrap_all.py
 
 # Install WordNet
