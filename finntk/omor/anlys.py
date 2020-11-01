@@ -29,9 +29,8 @@ def dict_to_analysis(d):
 
 
 def chunk_subwords(it):
-
     def is_cmp_bound(kv):
-        return (kv[0] == "BOUNDARY" and kv[1] == "COMPOUND")
+        return kv[0] == "BOUNDARY" and kv[1] == "COMPOUND"
 
     return split_at(it, is_cmp_bound)
 
@@ -130,9 +129,13 @@ def true_lemmatise(subword_dict, strict=False, return_feats=False):
     upos = subword_dict.get("upos")
     if upos not in ("VERB", "AUX", "NOUN", "PROPN", "ADJ", "PRON"):
         if strict:
-            assert upos is not None, "no upos found in subword_dict passed to true_lemmatise"
+            assert (
+                upos is not None
+            ), "no upos found in subword_dict passed to true_lemmatise"
             # As far as I know only verb, noun and adj can have drv
-            assert "drv" in subword_dict, "true_lemmatise in strict mode found drv in subword for unsupported UPOS"
+            assert (
+                "drv" in subword_dict
+            ), "true_lemmatise in strict mode found drv in subword for unsupported UPOS"
         return default_return()
     new_subword_dict = {}
     ending = None
@@ -159,7 +162,9 @@ def true_lemmatise(subword_dict, strict=False, return_feats=False):
             new_subword_dict[k] = v
     if ending is None:
         if strict:
-            assert False, "true_lemmatise in strict mode couldn't determine which ending to add"
+            assert (
+                False
+            ), "true_lemmatise in strict mode couldn't determine which ending to add"
         else:
             return default_return()
     elif ending == "blacklisted":
@@ -186,7 +191,10 @@ def true_lemmatise(subword_dict, strict=False, return_feats=False):
 
 
 def lemmas_of_subword_dicts(
-    subword_dicts, lemmatise_func=default_lemmatise, return_feats=False
+    subword_dicts,
+    lemmatise_func=default_lemmatise,
+    return_feats=False,
+    return_pos=False,
 ):
     subword_dicts = list(subword_dicts)
     res = {} if return_feats else set()
@@ -203,7 +211,10 @@ def lemmas_of_subword_dicts(
         else:
             for lemma in lemmatise_func(subword_dicts[-1]):
                 res.add(form_lemma(lemma))
-    return res
+    if return_pos:
+        return res, subword_dicts[-1].get("upos")
+    else:
+        return res
 
 
 EXTRA_WORD_ID = re.compile(r"_\d+$")
@@ -212,7 +223,7 @@ EXTRA_WORD_ID = re.compile(r"_\d+$")
 def norm_word_id(word_id):
     extra_match = EXTRA_WORD_ID.search(word_id)
     if extra_match:
-        word_id = word_id[:extra_match.start()]
+        word_id = word_id[: extra_match.start()]
     return word_id.lower()
 
 
@@ -274,6 +285,7 @@ def ud_to_omor(lemma, pos, feats=None):
         PART_FORM_MAP,
         INF_FORM_MAP,
     )
+
     pos = pos.upper()
     if feats is None:
         feats = {}

@@ -29,7 +29,9 @@ def _extract_lemmas(
     lemmatise_func=default_lemmatise,
     norm_func=iden_func,
     return_feats=False,
+    return_pos=False,
 ):
+    assert not return_pos or return_feats  # return_pos => return_feats
     omorfi = get_omorfi()
     analyses = omorfi.analyse(word_form)
     res = {} if return_feats else set()
@@ -41,9 +43,16 @@ def _extract_lemmas(
             lemma_feats = lemmas_of_subword_dicts(
                 analysis_slice,
                 lemmatise_func=lemmatise_func,
-                **({"return_feats": True} if return_feats else {})
+                return_feats=return_feats,
+                return_pos=return_pos,
             )
-            if return_feats:
+            if return_pos:
+                lemma_feats_inner, upos = lemma_feats
+                for lemma, feats in lemma_feats_inner.items():
+                    ext_lemma_feats(
+                        res, norm_func(lemma), ((upos, feat) for feat in feats)
+                    )
+            elif return_feats:
                 for lemma, feats in lemma_feats.items():
                     ext_lemma_feats(res, norm_func(lemma), feats)
             else:
@@ -71,7 +80,7 @@ def extract_lemmas_span(word_form):
     return _extract_lemmas(word_form, lambda analysis_dicts: [analysis_dicts])
 
 
-def extract_true_lemmas_span(word_form, norm_func=iden_func):
+def extract_true_lemmas_span(word_form, norm_func=iden_func, return_pos=False):
     """
     Works like `extract_lemmas_span`, but uses `true_lemmatise`. It also
     returns some of the features associated with each lemma.
@@ -82,6 +91,7 @@ def extract_true_lemmas_span(word_form, norm_func=iden_func):
         lemmatise_func=true_lemmatise,
         norm_func=norm_func,
         return_feats=True,
+        return_pos=return_pos,
     )
 
 
